@@ -1,0 +1,155 @@
+
+
+<div>
+<table width = "100%" border = 0 >
+
+<tr>
+    <td width = "5%"></td>
+    <td>
+          GP Properties - Crew Time<br>
+      <br>
+      <font family = 'courier' size='5'><b>Enter Hours You Worked </b></font>
+    </td>
+
+
+
+
+<td align = "right"  class = "top"> <img width="75" src = "../static/GP_Prop_logo_1.png">  </td>
+</tr>
+
+
+<tr>
+  <td width = "5%"></td>
+  <td>
+            {{worker.first}} {{worker.last}}
+            <br>
+            <br>
+            {{property.name}}</h1>
+            <br> <br>
+            Please enter:
+  </td>
+</tr>
+</table>
+
+
+
+</div>
+
+<form action = "{{postendpoint}}" method = "POST" id="enterhours">
+<div>
+<table width = "100%" border = 0>
+      <colgroup>
+
+      <col width="25%"/>
+      <col width="5%"/>
+      <col width="70%"/>
+
+      </colgroup>
+
+
+<tr>
+	<td align ="right"> Unit:</td>
+  <td></td>
+  <td>
+              <select name="selcted_unit">
+              {{#each units}}
+              <option value='[ {{id}}, "{{name}}"]'>{{name}}</option>
+
+              {{/each}}
+              </select>
+  </td>
+</tr>
+
+
+
+<tr>
+          <td></td>
+          <td></td>
+          <td>
+            &nbsp;
+          </td>
+
+<tr>
+
+
+
+<tr>
+	<td align ="right"> Date of Work: </td>
+  <td></td>
+  <td>
+      	<input id="datePicker" type = "date" name = "work_date"  value="{{today}}">
+   </td>
+
+</tr>
+
+<tr>
+          <td></td>
+          <td></td>
+          <td>
+            &nbsp;
+          </td>
+
+<tr>
+
+
+<tr>
+	<td align ="right"> How many Hours:</td>
+  <td></td>
+  <td>
+              <select name="hours_worked">
+              {{#each hoursBy30}}
+              <option value='{{this}}'>{{this}}</option>
+              {{/each}}
+              </select>
+  </td>
+
+</tr>
+
+<tr>
+          <td></td>
+          <td>
+            &nbsp;
+          </td>
+          <td></td>
+
+<tr>
+
+<tr>
+  	<td align ="right">
+    Notes from the Job:
+  	</td>
+     <td></td>
+    <td colspan="2">
+      <textarea name = "notes" cols="20" rows="2" ></textarea>
+    </td>
+  <tr>
+
+    <tr>
+              <td></td>
+              <td></td>
+              <td>
+                &nbsp;
+              </td>
+
+    <tr>
+
+
+      <input type = "hidden" name = "worker_id" value={{worker.id}}>
+      <input type = "hidden" name = "worker_link" value={{worker.link}}>
+      <input type = "hidden" name = "selected_property_id" value={{property.id}}>
+
+
+      </form>
+<tr>
+          <td></td>
+          <td></td>
+          <td>
+            <button type="submit" form="enterhours" >Submit Time</button>
+          </td>
+
+<tr>
+</table>
+<br>
+
+</div>
+&emsp;&emsp;

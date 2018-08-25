@@ -1,0 +1,81 @@
+
+
+<div>
+<table width = "100%" border = 0 >
+
+<tr>
+    <td width = "5%"></td>
+    <td>
+          GP Properties - Crew Time<br>
+      <br>
+      <font family = 'courier' size='5'><b>Enter Hours You Worked</b></font>
+    </td>
+
+
+
+
+<td align = "left" class = "top"> <img width="75" src = "../static/GP_Prop_logo_1.png">  </td>
+</tr>
+
+
+<tr>
+  <td width = "5%"></td>
+  <td colspan = "2">
+            <h1>Hello {{worker.first}} {{worker.last}}</h1>
+            {{message}}
+            <br>
+            What building did you work at?
+  </td>
+</tr>
+</table>
+</div>
+
+
+
+
+<form action = "{{postendpoint}}" method = "POST" id="chooseprop">
+<div>
+<br>
+<table width = "100%" border = 0>
+
+        <colgroup>
+        <col width="5%"/>
+        <col width="95%"/>
+        </colgroup>
+
+
+<tr>
+  <td></td>
+  <td>
+              <select name="selected_property">
+              {{#each properties}}
+              <option value='{{id}}'>{{name}}</option>
+              {{/each}}
+              </select>
+  </td>
+</tr>
+
+
+
+      <input type = "hidden" name = "worker_link" value={{worker.link}}>
+      </form>
+
+      <tr>
+        <td></td>
+        <td>&nbsp;</td>
+      <tr>
+
+<tr>
+  <td></td>
+  <td>
+    <button type="submit" form="chooseprop" >NEXT</button>
+
+  </td>
+<tr>
+
+
+</table>
+<br>
+
+</div>
+&emsp;&emsp;

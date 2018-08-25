@@ -1,13 +1,13 @@
 {
-  "name": "ira",
+  "name": "CREW-TIME",
   "version": "0.0.3",
   "description": "IRA v0.3",
-  "main": "ira.js",
+  "main": "ct.js",
   "engines": {
-    "node": ">=7.4.0"
+    "node": ">=8.0.0"
   },
   "scripts": {
-    "start": "node ira.js",
+    "start": "node ct.js",
     "test": "mocha /Users/paulkogan/node/ira3/src/ira.test2.js --inspect=127.0.0.1:8085"
   },
   "keywords": [
