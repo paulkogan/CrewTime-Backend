@@ -29,7 +29,7 @@ const secret = "cat"
 const winston = require('winston')
 const nodePort = 8081;
 
-const ctVersion = "0.8 +API with add TE from Mobile"
+const ctVersion = "0.9 +XLS download +Admin tools"
 
 
 let ctLogger = winston.createLogger({

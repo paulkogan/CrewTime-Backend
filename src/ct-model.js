@@ -62,6 +62,9 @@ module.exports = {
   getAllTimeEntries,
   getTimeEntriesById,
   insertTimeEntry,
+  insertWorker,
+  insertProperty,
+  insertUnit,
   findUser,
   updateUser,
   authUser
@@ -250,6 +253,59 @@ function insertTimeEntry(newTimeEntry) {
               }); //connection
       }); //promise
 } // function
+
+function insertWorker(newWorker) {
+      console.log("In Model, adding new Worker : "+JSON.stringify(newWorker))
+      return new Promise(function(succeed, fail) {
+            connection.query(
+            'INSERT INTO workers SET ?', newWorker,
+                function(err, results) {
+                          if (err) {
+                                console.log("Problem inserting Worker SQL"+err)
+                                fail(err)
+                          } else {
+                                //console.log("In model, results: "+JSON.stringify(results));
+                                succeed(results)
+                          }
+              }); //connection
+      }); //promise
+} // function
+
+
+function insertProperty(newProperty) {
+      console.log("In Model, adding new Worker : "+JSON.stringify(newProperty));
+      return new Promise(function(succeed, fail) {
+            connection.query(
+            'INSERT INTO properties SET ?', newProperty,
+                function(err, results) {
+                          if (err) {
+                                console.log("Problem inserting Property SQL"+err)
+                                fail(err)
+                          } else {
+                                //console.log("In model, results: "+JSON.stringify(results));
+                                succeed(results)
+                          }
+              }); //connection
+      }); //promise
+} // function
+
+function insertUnit(newUnit) {
+      console.log("In Model, adding new Unit : "+JSON.stringify(newUnit))
+      return new Promise(function(succeed, fail) {
+            connection.query(
+            'INSERT INTO units SET ?', newUnit,
+                function(err, results) {
+                          if (err) {
+                                console.log("Problem inserting Unit SQL"+err)
+                                fail(err)
+                          } else {
+                                //console.log("In model, results: "+JSON.stringify(results));
+                                succeed(results)
+                          }
+              }); //connection
+      }); //promise
+} // function
+
 
 
 

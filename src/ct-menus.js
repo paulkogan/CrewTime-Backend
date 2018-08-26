@@ -15,6 +15,7 @@ const actions =  require('./ct-actions');
 const ct =  require('../ct');
 const passport  = require('passport');
 const winston = require('winston');
+const j2csvParser = require('json2csv').parse;
 
 
 //default session info
@@ -34,6 +35,119 @@ module.exports = router;
 
 
 //============ CT Routes ======================
+
+
+
+async function createTECSVforDownload(responseArray) {
+
+        let columns = Object.keys(responseArray[0]);
+        console.log(" Columns are: " + columns +"\n")
+
+        let fields = []
+        columns.forEach((column,index) => {
+              fields[index] = {
+                label:column,
+                value:column
+              }
+        })
+
+
+        // let fields = [
+        //
+        //     {
+        //       label:"Worker",
+        //       value:columns[0]
+        //     },
+        //     {
+        //       label:"Property",
+        //       value:columns[1]
+        //     },
+        //     {
+        //       label:"Unit",
+        //       value:columns[2]
+        //     },
+        //     {
+        //       label:"Work-Date",
+        //       value:columns[3]
+        //     },
+        //     {
+        //       label:"Hours",
+        //       value:columns[4]
+        //     },
+        //     {
+        //       label:"Notes",
+        //       value:columns[5]
+        //     }
+        //
+        // ]
+        console.log(" Fields are: " + JSON.stringify(fields,null,4) +"\n")
+        let options = { fields };
+      //console.log("in create CSV - Trans JSON data has  " + JSON.stringify(responseArray,null,4) +"\n")
+        const csv = j2csvParser(responseArray, options);
+        console.log("\nTHE CSV is "+csv);
+        return csv;
+
+}
+
+
+
+
+
+router.get('/download_csv/:id', (req, res) => {
+
+      downloadCSVTimeEntries().catch(err => {
+            console.log("DownloadTimeEntries problem: "+err);
+      })
+      let fileName = "file";
+      async function downloadCSVTimeEntries() {
+            try {
+
+                  let filerWorker = await ctSQL.getWorkerById(req.params.id)
+                  var timeEntries = await ctSQL.getTimeEntriesById(req.params.id);
+                  console.log("\nGot timeEntries for entity  "+JSON.stringify(timeEntries,null,5));
+                  fileName = filerWorker.last+"_CT_TimeEntries.csv"
+            } catch (err ){
+
+                  var timeEntries = await ctSQL.getAllTimeEntries();
+                  console.log("\nGot All timeEntries "+JSON.stringify(timeEntries,null,5));
+                  fileName = "All_CT_TimeEntries.csv"
+
+            }
+
+            var  selectTimeEntries = timeEntries.map(function(element) {
+                        return  {
+                          id: element.id,
+                          worker_name: element.worker_name,
+                          property_name: element.property_name,
+                          unit_name: element.unit_name,
+                          work_date: element.work_date,
+                          work_hours: element.work_hours,
+                          notes: element.notes
+                        }
+            });
+
+
+                  let timeEntriesCSV = await createTECSVforDownload(selectTimeEntries);
+                  console.log("In CT-menus, the CSV file is \n"+timeEntriesCSV+"\n")
+                  res.setHeader('Content-disposition', 'attachment; filename='+fileName);
+                  res.set('Content-Type', 'text/csv');
+                  res.status(200).send(timeEntriesCSV);
+
+    }; //async function
+
+}); //route
+
+
+
+
+
+
+
+
+
+
+
+
 
 router.get('/timeentries/:id', (req, res) => {
     if (req.session && req.session.passport) {
@@ -97,7 +211,7 @@ router.get('/timeentries/:id', (req, res) => {
           });//render
 
     } //async function
-}); //route - transactions
+}); //route - timeEntries
 
 
 
@@ -387,56 +501,6 @@ router.get('/showlogs',  (req, res) => {
 
 
 
-router.get('/download_csv/:id', (req, res) => {
-      downloadCSVTransactions().catch(err => {
-            console.log("DownloadTransactions problem: "+err);
-      })
-      let fileName = "file";
-      async function downloadCSVTransactions() {
-            try {
-                  var entity = await ctSQL.getEntityById(req.params.id);
-                  //console.log("have Entity   "+ JSON.stringify(entity));
-                  var transactions = await ctSQL.getTransactionsForInvestment(entity.id);
-                  console.log("\nGot transactions for entity  "+JSON.stringify(transactions,null,5));
-                  fileName = entity.name+"_IRA_Transactions.csv"
-
-            } catch (err ){
-                  //console.log(err+ " -- No entity for    "+ req.params.id);
-                  var transactions = await ctSQL.getAllTransactions();
-                  fileName = "All_IRA_Transactions.csv"
-                  var entity = {
-                    id:0,
-                    name: "Select filter"
-                  }
-            }
-
-            var cleanTransactions = transactions.map(function(element) {
-                        let cleanTransaction = {
-                            id :element.id,
-                            investor_name :element.investor_name,
-                            investment_name :element.investment_name,
-                            passthru_name :element.passthru_name,
-                            tt_name :element.tt_name,
-                            t_wired_date :element.t_wired_date,
-                            formatted_amount :calc.formatCurrency(element.t_amount),
-                            t_own_adj :element.t_own_adj,
-                            t_notes :element.t_notes
-                        }
-
-                        return cleanTransaction;
-            });
-
-
-                  let transCSV = await calc.createCSVforDownload(cleanTransactions);
-                  //console.log("In ira, the CSV file is \n"+transCSV+"\n")
-
-                  res.setHeader('Content-disposition', 'attachment; filename='+fileName);
-                  res.set('Content-Type', 'text/csv');
-                  res.status(200).send(transCSV);
-
-    }; //async function
-
-}); //route
 
 
 
@@ -714,10 +778,10 @@ router.get('/deals', checkAuthentication, (req, res) => {
 
 
       let adminMenuOptions = []
-      adminMenuOptions[0] = {name:"Add Time Entry", link:"/workers/"}
-      adminMenuOptions[1] = {name:"Add Worker", link:"/home"}
-      adminMenuOptions[2] = {name:"Add Property", link:"/home"}
-      adminMenuOptions[3] = {name:"Add Unit", link:"/home"}
+
+      adminMenuOptions[0] = {name:"Add Worker", link:"/add-worker"}
+      adminMenuOptions[1] = {name:"Add Property", link:"/add-property"}
+      adminMenuOptions[2] = {name:"Add Unit", link:"/add-unit"}
 
 
 
