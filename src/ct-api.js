@@ -59,6 +59,10 @@ module.exports = api;
 // =============== APIs ===============
 
 
+
+
+
+
    api.get('/api/getallworkers',  (req, res) => {
        //call the async function
        api_getallworkers().catch(err => {
@@ -84,11 +88,13 @@ module.exports = api;
 
        async function api_getallproperties() {
              let allProperties =  await ctSQL.getAllProperties();
-
+             console.log("GOT all properties "+JSON.stringify(allProperties,null,4));
              let allPropsUnits = await Promise.all(
                        allProperties.map ( async (property) => {
+                                console.log("Getting units for  "+JSON.stringify(property,null,4));
+                                // TICKET - IF BUILDING HAS NO UNITS
                                 let units =  await ctSQL.getUnitsByPropertyId(property.id);
-                                property.units = units
+                                property.units = units;
                                 return property
                      })
               )
