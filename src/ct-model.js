@@ -189,7 +189,7 @@ function getTimeEntriesById(passedId) {
             +' JOIN workers as workers ON te.worker_id = workers.id'
             +' JOIN properties as p ON te.property_id = p.id'
             + " WHERE workers.id ='"+passedId+"'"
-            +' ORDER BY work_date DESC';
+            +' ORDER BY te.id DESC';
 
             return new Promise(function(succeed, fail) {
                   connection.query(queryString,
@@ -216,7 +216,7 @@ function getAllTimeEntries() {
     +' JOIN units as u ON te.unit_id = u.id'
     +' JOIN workers as workers ON te.worker_id = workers.id'
     +' JOIN properties as p ON te.property_id = p.id'
-    +' ORDER BY work_date DESC';
+    +' ORDER BY te.id DESC';
 
     return new Promise(function(succeed, fail) {
           connection.query(queryString,

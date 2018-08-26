@@ -13,7 +13,6 @@ const mysql = require('mysql');
 const ctSQL =  require('./ct-model');
 const menus =  require('./ct-menus');
 const ct =  require('../ct');
-//const iraLogger = ira.iraLogger
 const passport  = require('passport');
 const winston = require('winston');
 
@@ -57,6 +56,50 @@ function getTodaysDate() {
 
 
 //============ CREW-TIME ROUTES ======================
+
+
+// insert the new transaction - from MOBILE
+actions.post('/process-web-newtime', urlencodedParser, (req, res,next) => {
+
+  processMobNewtime().catch(err => {
+        console.log("Process 2 Newtime problem: "+err);
+  })
+
+  async function processMobNewtime() {
+
+
+    let newtime_form = req.body
+    console.log("\nNewtime - MOB - Raw from the Form: "+JSON.stringify(newtime_form)+"\n");
+
+    let newTimeEntry = {
+            worker_id : newtime_form.worker_id,
+            property_id : newtime_form.property_id,
+            unit_id : newtime_form.unit_id,
+            work_date : newtime_form.work_date,
+            work_hours : newtime_form.work_hours,
+            notes:  newtime_form.notes
+    }
+
+
+    console.log("\nAbout to insert new Time Entry from MOB with "+JSON.stringify(newTimeEntry, null, 4)+"\n");
+
+    let insertTEResults = await ctSQL.insertTimeEntry(newTimeEntry);
+    ct.ctLogger.log('info', '/add-new-time-entry : '+insertTEResults.insertId+" U:"+userObj.email);
+    console.log("\nAdded Time Entry - MOB "+insertTEResults.insertId);
+    res.send(200,"Time Entry Added");
+
+
+  } //async function
+
+
+}); //route
+
+
+
+
+
+
+
 
 
 //add cap call for a specific entity - link off deal page
@@ -128,7 +171,7 @@ actions.post('/process-1-newtime', urlencodedParser, (req, res,next) => {
 
 
 
-// insert the new transaction
+// insert the new transaction - from WEB FORM
 actions.post('/process-2-newtime', urlencodedParser, (req, res,next) => {
 
   processTwoNewtime().catch(err => {
@@ -152,10 +195,13 @@ actions.post('/process-2-newtime', urlencodedParser, (req, res,next) => {
     }
 
 
+
+
+
     console.log("\nAbout to insert new Time Entry transaction with "+JSON.stringify(newTimeEntry, null, 4)+"\n");
 
     let insertTEResults = await ctSQL.insertTimeEntry(newTimeEntry);
-    ct.iraLogger.log('info', '/add-new-time-entry : '+insertTEResults.insertId+" U:"+userObj.email);
+    ct.ctLogger.log('info', '/add-new-time-entry : '+insertTEResults.insertId+" U:"+userObj.email);
     console.log("\nAdded Time Entry -  "+insertTEResults.insertId);
 
     //   "work_date":"2018-08-21",
@@ -254,7 +300,7 @@ actions.post('/process_add_capital_call_trans', urlencodedParser, (req, res) => 
               console.log("\nAbout to insert new Cap Call transaction with "+JSON.stringify(newTransaction, null, 4)+"\n");
 
               let insertTransResults = await iraSQL.insertTransaction(newTransaction);
-              ira.iraLogger.log('info', '/add-capital-call-transaction : '+insertTransResults.insertId+" U:"+userObj.email);
+              ct.ctLogger.log('info', '/add-capital-call-transaction : '+insertTransResults.insertId+" U:"+userObj.email);
               req.flash('login', "Added capital-call transaction no. "+insertTransResults.insertId);
               console.log("\nAdded CapCall transaction no. "+insertTransResults.insertId);
               res.redirect('/home');
@@ -428,7 +474,7 @@ actions.post('/process_add_transaction', urlencodedParser, (req, res,next) => {
                           //console.log( "Added entity #: "+savedData.insertId);
                           req.flash('login', "Added transaction no. "+savedData.insertId);
                           console.log("\nAdded transaction no. "+savedData.insertId);
-                          ira.iraLogger.log('info', '/add-transaction : '+savedData.insertId+" U:"+userObj.email);
+                          ct.ctLogger.log('info', '/add-transaction : '+savedData.insertId+" U:"+userObj.email);
 
                           res.redirect('/transactions');
                         }, function(error) {   //failed
@@ -678,7 +724,7 @@ actions.post('/process_set_ownership', urlencodedParser, (req, res) => {
                   console.log("---getting EV from a deal, got "+newImpliedValue+"and Deal "+JSON.stringify(dealFinancials,null,4));
           }
           entityWithOwnership.implied_value = newImpliedValue;
-          ira.iraLogger.log('info', '/set-ownership   : '+entityWithOwnership.name+":"+calc.formatCurrency(entityWithOwnership.implied_value)+" U:"+userObj.email);
+          ct.ctLogger.log('info', '/set-ownership   : '+entityWithOwnership.name+":"+calc.formatCurrency(entityWithOwnership.implied_value)+" U:"+userObj.email);
           console.log("\nUpdating Entity with implied_value and new Ownership status for "+JSON.stringify(entityWithOwnership)+"\n");
           var updateEntityResults = await iraSQL.updateEntity(entityWithOwnership);
           console.log("\nUpdated Ownership Status, here results: "+updateEntityResults+"\n\n")
