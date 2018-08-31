@@ -215,7 +215,9 @@ actions.post('/process-web-newtime', urlencodedParser, (req, res,next) => {
             unit_id : newtime_form.unit_id,
             work_date : newtime_form.work_date,
             work_hours : newtime_form.work_hours,
-            notes:  newtime_form.notes
+            notes:  newtime_form.notes,
+            date_stamp: newtime_form.date_stamp,
+            time_stamp: newtime_form.time_stamp
     }
 
 

@@ -36,78 +36,57 @@ module.exports = router;
 
 //============ CT Routes ======================
 
+router.get('/buildings',  (req, res) => {
+          if (req.session && req.session.passport) {
+             userObj = req.session.passport.user;
 
+           }
 
-async function createTECSVforDownload(responseArray) {
-
-        let columns = Object.keys(responseArray[0]);
-        console.log(" Columns are: " + columns +"\n")
-
-        let fields = []
-        columns.forEach((column,index) => {
-              fields[index] = {
-                label:column,
-                value:column
-              }
-        })
-
-
-        console.log(" Fields are: " + JSON.stringify(fields,null,4) +"\n")
-        let options = { fields };
-      //console.log("in create CSV - Trans JSON data has  " + JSON.stringify(responseArray,null,4) +"\n")
-        const csv = j2csvParser(responseArray, options);
-        console.log("\nTHE CSV is "+csv);
-        return csv;
-
-}
+ //call the async function
+ buildings_units().catch(err => {
+       console.log("Show timeentriesForId problem: "+err);
+ })
 
 
 
 
 
-router.get('/download_csv/:id', (req, res) => {
+async function buildings_units() {
+                  let allBuildings = await ctSQL.getAllProperties()
 
-      downloadCSVTimeEntries().catch(err => {
-            console.log("DownloadTimeEntries problem: "+err);
-      })
-      let fileName = "file";
-      async function downloadCSVTimeEntries() {
-            try {
+                  let allBuildingsUnits = await Promise.all(
+                       allBuildings.map( async (building) => {
+                              let units = await ctSQL.getUnitsByPropertyId(building.id);
+                              //let xBuilding = Object.assign({},building);
+                              building.units = units
+                              building.name = building.name.slice(0,15)
+                              //console.log("Got building: "+JSON.stringify(xBuilding,null,4));
+                              return building
 
-                  let filerWorker = await ctSQL.getWorkerById(req.params.id)
-                  var timeEntries = await ctSQL.getTimeEntriesById(req.params.id);
-                  console.log("\nGot timeEntries for entity  "+JSON.stringify(timeEntries,null,5));
-                  fileName = filerWorker.last+"_CT_TimeEntries.csv"
-            } catch (err ){
-
-                  var timeEntries = await ctSQL.getAllTimeEntries();
-                  console.log("\nGot All timeEntries "+JSON.stringify(timeEntries,null,5));
-                  fileName = "All_CT_TimeEntries.csv"
-
-            }
-
-            var  selectTimeEntries = timeEntries.map(function(element) {
-                        return  {
-                          id: element.id,
-                          worker_name: element.worker_name,
-                          property_name: element.property_name,
-                          unit_name: element.unit_name,
-                          work_date: element.work_date,
-                          work_hours: element.work_hours,
-                          notes: element.notes
-                        }
-            });
+                        })
+                   )
 
 
-                  let timeEntriesCSV = await createTECSVforDownload(selectTimeEntries);
-                  console.log("In CT-menus, the CSV file is \n"+timeEntriesCSV+"\n")
-                  res.setHeader('Content-disposition', 'attachment; filename='+fileName);
-                  res.set('Content-Type', 'text/csv');
-                  res.status(200).send(timeEntriesCSV);
+                  console.log("Here are ALL the buildings same bld: "+JSON.stringify(allBuildingsUnits,null,4));
 
-    }; //async function
 
-}); //route
+                  res.render('ct-list-buildings', {
+                          userObj: userObj,
+                          sessioninfo: JSON.stringify(req.session),
+                          message: req.flash('login') + "Showing "+allBuildingsUnits.length+" buildings.",
+                          buildings: allBuildingsUnits
+                  });//render
+
+
+
+
+
+   } //async function
+
+}); //  buildings route
+
+
+
 
 
 
@@ -224,6 +203,84 @@ router.get('/workers',  (req, res) => {
 
 
 
+async function createTECSVforDownload(responseArray) {
+
+        let columns = Object.keys(responseArray[0]);
+        console.log(" Columns are: " + columns +"\n")
+
+        let fields = []
+        columns.forEach((column,index) => {
+              fields[index] = {
+                label:column,
+                value:column
+              }
+        })
+
+
+        console.log(" Fields are: " + JSON.stringify(fields,null,4) +"\n")
+        let options = { fields };
+      //console.log("in create CSV - Trans JSON data has  " + JSON.stringify(responseArray,null,4) +"\n")
+        const csv = j2csvParser(responseArray, options);
+        console.log("\nTHE CSV is "+csv);
+        return csv;
+
+}
+
+
+
+router.get('/download_csv/:id', (req, res) => {
+
+      downloadCSVTimeEntries().catch(err => {
+            console.log("DownloadTimeEntries problem: "+err);
+      })
+      let fileName = "file";
+      async function downloadCSVTimeEntries() {
+            try {
+
+                  let filerWorker = await ctSQL.getWorkerById(req.params.id)
+                  var timeEntries = await ctSQL.getTimeEntriesById(req.params.id);
+                  console.log("\nGot timeEntries for entity  "+JSON.stringify(timeEntries,null,5));
+                  fileName = filerWorker.last+"_CT_TimeEntries.csv"
+            } catch (err ){
+
+                  var timeEntries = await ctSQL.getAllTimeEntries();
+                  console.log("\nGot All timeEntries "+JSON.stringify(timeEntries,null,5));
+                  fileName = "All_CT_TimeEntries.csv"
+
+            }
+
+            var  selectTimeEntries = timeEntries.map(function(element) {
+                        return  {
+                          id: element.id,
+                          worker_name: element.worker_name,
+                          property_name: element.property_name,
+                          unit_name: element.unit_name,
+                          work_date: element.work_date,
+                          work_hours: element.work_hours,
+                          time_stamp: element.time_stamp,
+                          date_stamp: element.date_stamp,
+                          notes: element.notes
+                        }
+            });
+
+
+                  let timeEntriesCSV = await createTECSVforDownload(selectTimeEntries);
+                  console.log("In CT-menus, the CSV file is \n"+timeEntriesCSV+"\n")
+                  res.setHeader('Content-disposition', 'attachment; filename='+fileName);
+                  res.set('Content-Type', 'text/csv');
+                  res.status(200).send(timeEntriesCSV);
+
+    }; //async function
+
+}); //route
+
+
+
+
+
+
+
+
 router.get('/showlogs',  (req, res) => {
         if (req.session && req.session.passport) {
            userObj = req.session.passport.user;
@@ -298,7 +355,7 @@ router.get('/showlogs',  (req, res) => {
       let reportMenuOptions = []
       reportMenuOptions[0] = {name:"Workers & Links to Forms", link:"/workers"}
       reportMenuOptions[1] = {name:"Time Entries with XLS Download", link:"/timeentries/0"}
-      reportMenuOptions[2] = {name:"Properties with Units", link:"/home"}
+      reportMenuOptions[2] = {name:"Properties with Units", link:"/buildings"}
       //reportMenuOptions[2] = {name:"Commitments", link:"/commitments"}
 
 
