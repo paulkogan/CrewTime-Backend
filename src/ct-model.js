@@ -57,6 +57,7 @@ module.exports = {
   getWorkerByLink,
   getWorkerById,
   getPropertyById,
+  getUnitById,
   getAllProperties,
   getAllWorkers,
   getAllTimeEntries,
@@ -67,10 +68,53 @@ module.exports = {
   insertUnit,
   findUser,
   updateUser,
+  deleteUnit,
+  deleteProperty,
   authUser
 };
 
 //======  CREW TIME FUNCTIONS ==========================================
+
+
+function deleteUnit(unit_id) {
+
+  let queryString = 'DELETE FROM units where id='+unit_id+";"
+
+  //console.log("In Model, deletng unit the query string is "+queryString)
+  return new Promise(function(succeed, fail) {
+        connection.query(queryString,
+          function(err, results) {
+                  if (err) {
+                        fail(err)
+                  } else {
+                        succeed(results)
+                  }
+          }); //connection
+  }); //promise
+} // function
+
+
+
+function deleteProperty(prop_id) {
+
+  let queryString = 'DELETE FROM properties where id='+prop_id+";"
+
+  //console.log("In Model, deletng property the query string is "+queryString)
+  return new Promise(function(succeed, fail) {
+        connection.query(queryString,
+          function(err, results) {
+                  if (err) {
+                        fail(err)
+                  } else {
+                        succeed(results)
+                  }
+          }); //connection
+  }); //promise
+} // function
+
+
+
+
 
 function getUnitsByPropertyId (prop_id) {
   let queryString = 'SELECT * from units WHERE property_id ='+prop_id;
@@ -91,6 +135,25 @@ function getUnitsByPropertyId (prop_id) {
       }); //promise
 } // function
 
+
+function getUnitById (unit_id) {
+      let queryString = 'SELECT * from units WHERE id ='+unit_id;
+      return new Promise(function(succeed, fail) {
+            connection.query(queryString,
+              function(err, results) {
+                      if (err) {
+                            fail(err)
+                      } else {
+                            if (!results[0]) {
+                                    fail("No such unit, sorry")
+                            }
+
+                            console.log ("Success found Unit by ID "+results[0].name +"\n")
+                            succeed(results[0])
+                      }
+              }); //connection
+      }); //promise
+} // function
 
 function getPropertyById (prop_id) {
       let queryString = 'SELECT * from properties WHERE id ='+prop_id;

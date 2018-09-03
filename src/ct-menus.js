@@ -67,7 +67,7 @@ async function buildings_units() {
                    )
 
 
-                  console.log("Here are ALL the buildings same bld: "+JSON.stringify(allBuildingsUnits,null,4));
+                //  console.log("Here are ALL the buildings same bld: "+JSON.stringify(allBuildingsUnits,null,4));
 
 
                   res.render('ct-list-buildings', {

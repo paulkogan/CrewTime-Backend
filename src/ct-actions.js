@@ -57,6 +57,119 @@ function getTodaysDate() {
 
 //============ CREW-TIME ROUTES ======================
 
+// the old web-based version of addtime
+actions.get('/delete_unit/:id', (req, res) => {
+        if (req.session && req.session.passport) {
+           userObj = req.session.passport.user;
+        }
+
+
+  deleteUnit().catch(err => {
+               console.log("Delete problem: "+err);
+               req.flash('login', "Problems delete unit")
+               res.redirect('/home')
+         })
+
+
+  async function deleteUnit() {
+      let unit = await ctSQL.getUnitById (req.params.id)
+      console.log("\ngot Unit"+JSON.stringify(unit,null,4));
+      res.render('ct-confirm-delete-unit', {
+                userObj: userObj,
+                postendpoint: '/process_delete_unit',
+                unit: unit
+        });//render
+  } //async function
+}); //route add mytime
+
+
+
+// insert the new deal and corresponding entity
+actions.post('/process_delete_unit', urlencodedParser, (req, res) => {
+
+  //call the async function
+  doDeleteUnit().catch(err => {
+        console.log("Process Del Unit problem: "+err);
+  })
+
+  async function doDeleteUnit() {
+            let formData = req.body
+            console.log("\nDelete Unit - Raw from the Form: "+JSON.stringify(formData)+"\n");
+            let unit =  await ctSQL.getUnitById (formData.unitId);
+
+            var delResults = await ctSQL.deleteUnit(unit.id);
+            console.log( "Delted unit #: "+unit.id);
+            req.flash('login', "Deleted Unit #: "+unit.id);
+            res.redirect('/home');
+
+   } //async function
+}); //process add-deal route
+
+
+
+// the old web-based version of addtime
+actions.get('/delete_prop/:id', (req, res) => {
+        if (req.session && req.session.passport) {
+           userObj = req.session.passport.user;
+        }
+
+
+  deleteBuilding().catch(err => {
+               console.log("Delete problem: "+err);
+               req.flash('login', "Problems delete building ")
+               res.redirect('/home')
+         })
+
+
+  async function deleteBuilding() {
+      let property= await ctSQL.getPropertyById (req.params.id)
+      console.log("\ngot Property"+JSON.stringify(property,null,4));
+      res.render('ct-confirm-delete-prop', {
+                userObj: userObj,
+                postendpoint: '/process_delete_prop',
+                property: property
+        });//render
+  } //async function
+}); //route add mytime
+
+
+
+// insert the new deal and corresponding entity
+actions.post('/process_delete_prop', urlencodedParser, (req, res) => {
+
+  //call the async function
+  doDeleteProperty().catch(err => {
+        console.log("Process Del Property problem: "+err);
+  })
+
+  async function doDeleteProperty() {
+            let formData = req.body
+            console.log("\nDelete Prop - Raw from the Form: "+JSON.stringify(formData)+"\n");
+            let property= await ctSQL.getPropertyById (formData.propId)
+            let units =  await ctSQL.getUnitsByPropertyId (property.id);
+
+            units.forEach (async (unit) => {
+                  let delUnitResults = await ctSQL.deleteUnit(unit.id);
+                  console.log( "Deleted Unit #: "+JSON.stringify(delUnitResults));
+            })
+
+            var delPropResults = await ctSQL.deleteProperty(property.id);
+            console.log( "Delted property #: "+property.id);
+            req.flash('login', "Deleted Bldg. #: "+property.id);
+            res.redirect('/home');
+
+   } //async function
+}); //process add-deal route
+
+
+
+
+
+
+
+
+
+
 
 // insert the new deal and corresponding entity
 actions.get('/add-worker', (req, res) => {
@@ -240,9 +353,7 @@ actions.post('/process-web-newtime', urlencodedParser, (req, res,next) => {
 
 
 
-
-
-//add cap call for a specific entity - link off deal page
+// the old web-based version of addtime
 actions.get('/addtime/:link', (req, res) => {
         if (req.session && req.session.passport) {
            userObj = req.session.passport.user;

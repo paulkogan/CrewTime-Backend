@@ -29,7 +29,7 @@ const secret = "cat"
 const winston = require('winston')
 const nodePort = 8081;
 
-const ctVersion = "5.5 +time stamp +bldg admin"
+const ctVersion = "5.6 +delete bldg & unit"
 
 
 let ctLogger = winston.createLogger({
@@ -56,9 +56,6 @@ ctLogger.exceptions.handle(
   //new winston.transports.File({ filename: 'iralog2.log' }),
   new winston.transports.Console()
 );
-
-
-
 
 
 
