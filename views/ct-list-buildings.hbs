@@ -21,7 +21,7 @@
 </table>
 </div>
 
-
+<form action = "{{postendpoint}}" method = "POST" id="change_work_status">
 
 {{#if buildings}}
     {{#each buildings}}
@@ -46,12 +46,33 @@
           <td align="center">
                   {{#if units}}
 
-                  <table width = "100%" border = 1>
+                  <table width = "100%" border = 0>
                   {{#each units}}
                     <tr>
                       <td>
-                          {{name}}
-                      </td>
+
+                            {{#ifEqual unit_work_status 1}}
+                                        <button
+                                              type="submit"
+                                              name="unitId"
+                                              value="{{id}}"
+                                              style="background-color:lightgreen; width:120px;"
+                                          >{{name}}</button>
+
+
+                            {{else}}
+                                            <button
+                                                  type="submit"
+                                                  name="unitId"
+                                                  value="{{id}}"
+                                                  style="background-color:white; width: 120px;"
+                                              >{{name}}</button>
+
+
+
+                            {{/ifEqual}}
+
+                   </td>
                       <td>
                           <a href = "/delete_unit/{{id}}">Del.Unit</a>
                       </td>
@@ -75,7 +96,7 @@
 {{/each}}
 <br>
  {{/if}}
-
+</form>
 <br><br>
-&emsp; &emsp;
+&emsp; &emsp;  form="change_work_status"
  <br><br>

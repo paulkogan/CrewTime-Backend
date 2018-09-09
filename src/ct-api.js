@@ -93,13 +93,29 @@ module.exports = api;
                        allProperties.map ( async (property) => {
                                 console.log("Getting units for  "+JSON.stringify(property,null,4));
                                 // TICKET - IF BUILDING HAS NO UNITS
-                                let units =  await ctSQL.getUnitsByPropertyId(property.id);
-                                property.units = units;
-                                return property
+                                try {
+                                      let units =  await ctSQL.getWorkingUnitsByPropertyId(property.id);
+                                      property.units = units;
+                                      return property
+                                } catch(err) {
+                                      let units = []
+                                      property.units = units;
+                                      return property
+                                }
                      })
               )
 
-             res.send(JSON.stringify(allPropsUnits, null,4));
+              let allPropsWithUnits = allPropsUnits.filter((property)=>{
+                  if (property.units.length<1) {
+                      return false
+                  } else {
+                      return true
+                  }
+
+              })
+
+
+             res.send(JSON.stringify(allPropsWithUnits, null,4));
          } //async function
    }); //route -
 
@@ -132,7 +148,7 @@ module.exports = api;
        })
 
        async function api_getunitsbypropid() {
-             let units =  await ctSQL.getUnitsByPropertyId(req.params.propid);
+             let units =  await ctSQL.getWorkingUnitsByPropertyId(req.params.propid);
              res.send(JSON.stringify(units, null, 4));
          } //async function getdealfinancials
    }); //route - cc-details

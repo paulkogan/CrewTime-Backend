@@ -54,6 +54,7 @@ connection.connect(function(err) {
 
 module.exports = {
   getUnitsByPropertyId,
+  getWorkingUnitsByPropertyId,
   getWorkerByLink,
   getWorkerById,
   getPropertyById,
@@ -70,10 +71,32 @@ module.exports = {
   updateUser,
   deleteUnit,
   deleteProperty,
+  setWorkStatus,
   authUser
 };
 
 //======  CREW TIME FUNCTIONS ==========================================
+
+
+function setWorkStatus (unit_id,work_status) {
+    //console.log("\n\nHere at update: email:"+ updateuser.email +" PW:"+updateuser.password+" ID:"+updateuser.id)
+
+  let queryString = 'UPDATE units SET unit_work_status = '+work_status+' WHERE id='+unit_id
+
+  console.log("In Model, updating work status, the query string is "+queryString)
+  return new Promise(function(succeed, fail) {
+        connection.query(queryString,
+          function(err, results) {
+                  if (err) {
+                        fail(err)
+                  } else {
+                        succeed(results)
+                  }
+          }); //connection
+  }); //promise
+} // function
+
+
 
 
 function deleteUnit(unit_id) {
@@ -113,6 +136,24 @@ function deleteProperty(prop_id) {
 } // function
 
 
+function getWorkingUnitsByPropertyId (prop_id) {
+  let queryString = 'SELECT * from units WHERE property_id ='+prop_id+' AND unit_work_status = 1';
+      return new Promise(function(succeed, fail) {
+            connection.query(queryString,
+              function(err, results) {
+                      if (err) {
+                            fail(err)
+                      } else {
+                            if (!results[0]) {
+                                    fail("No such unit, sorry")
+                            }
+
+                            //console.log ("In model, Success found Units for PropId "+JSON.stringify(results,null,4) +"\n")
+                            succeed(results)
+                      }
+              }); //connection
+      }); //promise
+} // function
 
 
 

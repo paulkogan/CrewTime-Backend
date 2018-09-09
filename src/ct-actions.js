@@ -57,6 +57,93 @@ function getTodaysDate() {
 
 //============ CREW-TIME ROUTES ======================
 
+actions.get('/buildings',  (req, res) => {
+          if (req.session && req.session.passport) {
+             userObj = req.session.passport.user;
+
+           }
+
+ //call the async function
+ buildings_units().catch(err => {
+       console.log("Show timeentriesForId problem: "+err);
+ })
+
+
+async function buildings_units() {
+                  let allBuildings = await ctSQL.getAllProperties()
+
+                  let allBuildingsUnits = await Promise.all(
+                       allBuildings.map( async (building) => {
+                              let units = await ctSQL.getUnitsByPropertyId(building.id);
+                              //let xBuilding = Object.assign({},building);
+                              building.units = units
+                              building.name = building.name.slice(0,15)
+                              //console.log("Got building: "+JSON.stringify(xBuilding,null,4));
+                              return building
+
+                        })
+                   )
+
+
+                //  console.log("Here are ALL the buildings same bld: "+JSON.stringify(allBuildingsUnits,null,4));
+
+
+                  res.render('ct-list-buildings', {
+                          userObj: userObj,
+                          sessioninfo: JSON.stringify(req.session),
+                          postendpoint: '/process_work_status',
+                          message: req.flash('login') + "Showing "+allBuildingsUnits.length+" buildings.",
+                          buildings: allBuildingsUnits
+                  });//render
+
+
+
+
+
+   } //async function
+
+}); //  buildings route
+
+
+
+
+// insert the new deal and corresponding entity
+actions.post('/process_work_status', urlencodedParser, (req, res) => {
+
+  //call the async function
+  changeWorkStatus().catch(err => {
+        console.log("Change Work Status problem: "+err);
+  })
+
+  async function changeWorkStatus() {
+            let formData = req.body
+            console.log("\nChange Work Status - Raw from the Form: "+JSON.stringify(formData)+"\n");
+            let unit =  await ctSQL.getUnitById (parseInt(formData.unitId));
+            console.log( "for Unit: "+unit.name+" the work status is "+unit.unit_work_status);
+            let newWS = (unit.unit_work_status === 1) ? 0 : 1;
+            let setWSResults = await ctSQL.setWorkStatus(unit.id,newWS)
+            // var delResults = await ctSQL.deleteUnit(unit.id);
+            // console.log( "Delted unit #: "+unit.id);
+            req.flash('login', "Changed work status for unit #"+unit.id+".    ");
+            res.redirect('/buildings');
+
+   } //async function
+}); //process add-deal route
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // the old web-based version of addtime
 actions.get('/delete_unit/:id', (req, res) => {
         if (req.session && req.session.passport) {
