@@ -71,6 +71,7 @@ module.exports = {
   updateUser,
   deleteUnit,
   deleteProperty,
+  deleteWorker,
   setWorkStatus,
   authUser
 };
@@ -84,6 +85,25 @@ function setWorkStatus (unit_id,work_status) {
   let queryString = 'UPDATE units SET unit_work_status = '+work_status+' WHERE id='+unit_id
 
   console.log("In Model, updating work status, the query string is "+queryString)
+  return new Promise(function(succeed, fail) {
+        connection.query(queryString,
+          function(err, results) {
+                  if (err) {
+                        fail(err)
+                  } else {
+                        succeed(results)
+                  }
+          }); //connection
+  }); //promise
+} // function
+
+
+
+function deleteWorker(worker_id) {
+
+  let queryString = 'DELETE FROM workers where id='+worker_id+";"
+
+  //console.log("In Model, deletng unit the query string is "+queryString)
   return new Promise(function(succeed, fail) {
         connection.query(queryString,
           function(err, results) {
@@ -379,7 +399,7 @@ function insertWorker(newWorker) {
 
 
 function insertProperty(newProperty) {
-      console.log("In Model, adding new Worker : "+JSON.stringify(newProperty));
+      console.log("In Model, adding new Property : "+JSON.stringify(newProperty));
       return new Promise(function(succeed, fail) {
             connection.query(
             'INSERT INTO properties SET ?', newProperty,

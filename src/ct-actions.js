@@ -57,6 +57,59 @@ function getTodaysDate() {
 
 //============ CREW-TIME ROUTES ======================
 
+
+// the old web-based version of addtime
+actions.get('/delete_worker/:id', (req, res) => {
+        if (req.session && req.session.passport) {
+           userObj = req.session.passport.user;
+        }
+
+
+  deleteWorker().catch(err => {
+               console.log("Delete worker problem: "+err);
+               req.flash('login', "Problems delete worker")
+               res.redirect('/workers')
+         })
+
+
+  async function deleteWorker() {
+      let worker = await ctSQL.getWorkerById(req.params.id)
+      console.log("\ngot worker"+JSON.stringify(worker,null,4));
+      res.render('ct-confirm-delete-worker', {
+                userObj: userObj,
+                postendpoint: '/process_delete_worker',
+                worker: worker
+        });//render
+  } //async function
+}); //route add mytime
+
+
+
+// insert the new deal and corresponding entity
+actions.post('/process_delete_worker', urlencodedParser, (req, res) => {
+
+  //call the async function
+  doDeleteWorker().catch(err => {
+        console.log("Process Del Worker problem: "+err);
+  })
+
+  async function doDeleteWorker() {
+            let formData = req.body
+            console.log("\nDelete worker - Raw from the Form: "+JSON.stringify(formData)+"\n");
+            let worker =  await ctSQL.getWorkerById(formData.workerId);
+
+            var delResults = await ctSQL.deleteWorker(worker.id);
+            console.log( "Delted worker #: "+worker.id);
+            req.flash('login', "Deleted Worker #: "+worker.id);
+            res.redirect('/workers');
+
+   } //async function
+}); //process route
+
+
+
+
+
 actions.get('/buildings',  (req, res) => {
           if (req.session && req.session.passport) {
              userObj = req.session.passport.user;
@@ -129,14 +182,6 @@ actions.post('/process_work_status', urlencodedParser, (req, res) => {
 
    } //async function
 }); //process add-deal route
-
-
-
-
-
-
-
-
 
 
 
@@ -289,16 +334,14 @@ actions.post('/process_add_worker', urlencodedParser, (req, res) => {
               first: formData.first,
               last: formData.last,
               phone: formData.phone,
-              link: formData.link,
+              link: formData.link.toLowerCase(),
               boss_id:null
             }
 
             var addWorkerResults = await ctSQL.insertWorker(newWorker);
             console.log( "Added worker #: "+addWorkerResults.insertId);
             req.flash('login', "Added Worker #: "+addWorkerResults.insertId);
-
             res.redirect('/home');
-
    } //async function
 }); //process add-deal route
 
@@ -382,7 +425,8 @@ actions.post('/process_add_unit', urlencodedParser, (req, res) => {
             console.log("\nAdd Unit - Raw from the Form: "+JSON.stringify(formData)+"\n");
             let newUnit= {
               name: formData.name,
-              property_id: formData.property_id
+              property_id: formData.property_id,
+              unit_work_status: 1
             }
 
             var addUnitResults = await ctSQL.insertUnit(newUnit);
@@ -421,11 +465,11 @@ actions.post('/process-web-newtime', urlencodedParser, (req, res,next) => {
     }
 
 
-    console.log("\nAbout to insert new Time Entry from MOB with "+JSON.stringify(newTimeEntry, null, 4)+"\n");
+    console.log("\nAbout to insert new Time Entry from MOBILE with "+JSON.stringify(newTimeEntry, null, 4)+"\n");
 
     let insertTEResults = await ctSQL.insertTimeEntry(newTimeEntry);
     ct.ctLogger.log('info', '/add-new-time-entry : '+insertTEResults.insertId+" U:"+userObj.email);
-    console.log("\nAdded Time Entry - MOB "+insertTEResults.insertId);
+    console.log("\nAdded Time Entry - MOBILE "+insertTEResults.insertId);
     //res.send(200,"Time Entry Added");
     res.status(200).send("Time Enrry Added");
 

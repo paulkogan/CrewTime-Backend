@@ -105,13 +105,13 @@ module.exports = api;
                      })
               )
 
+              //not elegant but a separate filter pass gets the job done
               let allPropsWithUnits = allPropsUnits.filter((property)=>{
                   if (property.units.length<1) {
                       return false
                   } else {
                       return true
                   }
-
               })
 
 
