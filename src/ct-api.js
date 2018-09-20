@@ -88,10 +88,10 @@ module.exports = api;
 
        async function api_getallproperties() {
              let allProperties =  await ctSQL.getAllProperties();
-             console.log("GOT all properties "+JSON.stringify(allProperties,null,4));
+             //console.log("GOT all properties "+JSON.stringify(allProperties,null,4));
              let allPropsUnits = await Promise.all(
                        allProperties.map ( async (property) => {
-                                console.log("Getting units for  "+JSON.stringify(property,null,4));
+                                //console.log("Getting units for  "+JSON.stringify(property,null,4));
                                 // TICKET - IF BUILDING HAS NO UNITS
                                 try {
                                       let units =  await ctSQL.getWorkingUnitsByPropertyId(property.id);
@@ -133,6 +133,12 @@ module.exports = api;
 
        async function api_getworkerbylink() {
              let workerDetails =  await ctSQL.getWorkerByLink(req.params.link);
+              console.log("Get worker by Link details "+workerDetails);
+             if (!workerDetails) workerDetails = {
+               id: 0,
+               first: "Sorry, could not find profile.",
+               last: "Please check your link."
+             }
              res.send(JSON.stringify(workerDetails, null, 4));
          } //async function getdealfinancials
    }); //route - cc-details

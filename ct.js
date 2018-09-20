@@ -29,7 +29,7 @@ const secret = "cat"
 const winston = require('winston')
 const nodePort = 8081;
 
-const ctVersion = "5.8 +link to grid +delete worker +unit on by default "
+const ctVersion = "5.10 +Overtime flag "
 
 
 let ctLogger = winston.createLogger({

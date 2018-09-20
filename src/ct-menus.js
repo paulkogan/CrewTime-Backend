@@ -188,7 +188,7 @@ router.get('/download_csv/:id', (req, res) => {
 
                   let filerWorker = await ctSQL.getWorkerById(req.params.id)
                   var timeEntries = await ctSQL.getTimeEntriesById(req.params.id);
-                  console.log("\nGot timeEntries for entity  "+JSON.stringify(timeEntries,null,5));
+                  console.log("\nin DOWNLOAD CSV - Got timeEntries for entity  "+JSON.stringify(timeEntries,null,5));
                   fileName = filerWorker.last+"_CT_TimeEntries.csv"
             } catch (err ){
 
@@ -206,6 +206,7 @@ router.get('/download_csv/:id', (req, res) => {
                           unit_name: element.unit_name,
                           work_date: element.work_date,
                           work_hours: element.work_hours,
+                          is_overtime: element.is_overtime,
                           time_stamp: element.time_stamp,
                           date_stamp: element.date_stamp,
                           notes: element.notes

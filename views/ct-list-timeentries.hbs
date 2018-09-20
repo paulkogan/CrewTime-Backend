@@ -80,10 +80,11 @@
 
                         <colgroup>
                         <col width="5%"/>
-                        <col width="15%"/>
+                        <col width="10%"/>
                         <col width="10%"/>
                         <col width="15%"/>
                         <col width="10%"/>
+                        <col width="5%"/>
                         <col width="5%"/>
                         <col width="10%"/>
                         <col width="5%"/>
@@ -96,7 +97,20 @@
                           <td align="left">{{work_date}}</td>
                           <td align="left">{{property_name}}</td>
                           <td align="left">{{unit_name}}</td>
-                          <td align="left">{{work_hours}}</td>
+                          <td align="left">{{work_hours}} hrs</td>
+
+
+                          <td align="left">
+
+                          {{#ifEqual is_overtime 1}}
+                                   OT
+                          {{else}}
+                                    REG
+                          {{/ifEqual}}
+
+
+                          </td>
+
                           <td align="left">{{date_stamp}}</td>
                           <td align="left">{{time_stamp}}</td>
                       </tr>
