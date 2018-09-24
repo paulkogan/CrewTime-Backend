@@ -59,7 +59,7 @@ router.get('/timeentries/:id', (req, res) => {
                 console.log("\nGot worker  "+JSON.stringify(worker ,null,5));
                  //ct.ctLogger.log('info', '/timeentries/id : '+worker.name+"  U:"+userObj.email);
 
-                var timeEntries = await ctSQL.getTimeEntriesById(req.params.id);
+                var timeEntries = await ctSQL.getTimeEntriesByWorkerId(req.params.id);
                 console.log("\nGot timeEntries for id here is 1st  "+JSON.stringify(timeEntries[0],null,5));
 
 
@@ -108,7 +108,6 @@ router.get('/timeentries/:id', (req, res) => {
 
 
 
-
 //need this because we hit a submit button to send search
 router.post('/process_timeentries_filter', urlencodedParser, (req, res) => {
 
@@ -123,6 +122,11 @@ router.post('/process_timeentries_filter', urlencodedParser, (req, res) => {
 })
 
 
+router.get('/timeentries/', (req, res) => {
+
+          res.redirect('/timeentries/0')
+
+})
 
 
 
@@ -187,7 +191,7 @@ router.get('/download_csv/:id', (req, res) => {
             try {
 
                   let filerWorker = await ctSQL.getWorkerById(req.params.id)
-                  var timeEntries = await ctSQL.getTimeEntriesById(req.params.id);
+                  var timeEntries = await ctSQL.getTimeEntriesByWorkerId(req.params.id);
                   console.log("\nin DOWNLOAD CSV - Got timeEntries for entity  "+JSON.stringify(timeEntries,null,5));
                   fileName = filerWorker.last+"_CT_TimeEntries.csv"
             } catch (err ){

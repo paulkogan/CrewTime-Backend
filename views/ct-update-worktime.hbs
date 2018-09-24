@@ -1,0 +1,186 @@
+
+
+<div>
+<table width = "100%" border = 0 >
+
+<tr>
+    <td width = "5%"></td>
+    <td>
+          GP Properties - Crew Time<br>
+      <br>
+      <font family = 'courier' size='5'><b>Update a Time Entry</b></font>
+    </td>
+
+</tr>
+
+<tr>
+      <td></td>
+      <td align = "left">
+      <a href = "/">Home</a>&emsp;
+      </td>
+
+      <td></td>
+      <td></td>
+      <td></td>
+</tr>
+
+
+
+<tr>
+  <td width = "5%"></td>
+  <td>
+            Worker: {{worker.first}} {{worker.last}}
+            <br>
+            Work Date: {{worktime.work_date}}
+            <br>
+            Building: {{property.name}}
+            <br>
+            <br><br>
+            Please update:
+  </td>
+</tr>
+</table>
+
+
+
+</div>
+
+<form action = "{{postendpoint}}" method = "POST" id="edit-wt">
+<div>
+<table width = "100%" border = 0>
+      <colgroup>
+
+      <col width="25%"/>
+      <col width="5%"/>
+      <col width="70%"/>
+
+      </colgroup>
+
+
+<tr>
+	<td align ="right"> Unit:</td>
+  <td>
+
+  </td>
+
+
+  <td>
+
+              <select name="selcted_unit">
+                <option value='{{worktime.unit_id}}' selected >{{unit.name}}</option>
+              {{#each units}}
+              <option  value='{{id}}' >{{name}}</option>
+              {{/each}}
+              </select>
+  </td>
+</tr>
+
+
+
+
+
+<tr>
+          <td></td>
+          <td></td>
+          <td>
+            &nbsp;
+          </td>
+
+<tr>
+
+
+
+
+
+<tr>
+	<td align ="right"> How many Hours:</td>
+  <td></td>
+  <td>
+              <select name="hours_worked">
+                    <option value='{{worktime.work_hours}}' selected >{{worktime.work_hours}} hrs</option>
+              {{#each hoursBy30}}
+                      <option value='{{this}}' >{{this}} hrs.</option>
+              {{/each}}
+              </select>
+  </td>
+</tr>
+
+<tr>
+          <td></td>
+          <td>
+            &nbsp;
+          </td>
+          <td></td>
+
+<tr>
+
+
+  <tr>
+  	<td align ="right"> Is it Overtime?:</td>
+    <td></td>
+    <td>
+                <select name="is_overtime">
+                        {{#ifEqual worktime.is_overtime 1}}
+                              <option value='1' selected > YES </option>
+                              <option value='0' > NO </option>
+                        {{else}}
+                              <option value='1'> YES </option>
+                              <option value='0' selected > NO </option>
+                        {{/ifEqual}}
+
+                </select>
+    </td>
+  </tr>
+
+  <tr>
+            <td></td>
+            <td>
+              &nbsp;
+            </td>
+            <td></td>
+
+  <tr>
+
+
+
+
+
+<tr>
+  	<td align ="right">
+    Notes for the Update:
+  	</td>
+     <td></td>
+    <td colspan="2">
+      <textarea name = "notes" cols="40" rows="2" > This time-entry was updated on {{today}}</textarea>
+    </td>
+  <tr>
+
+    <tr>
+              <td></td>
+              <td></td>
+              <td>
+                &nbsp;
+              </td>
+
+    <tr>
+
+
+      <input type = "hidden" name = "worktime_id" value={{worktime.id}}>
+      <input type = "hidden" name = "selected_property_id" value={{property.id}}>
+      <input type = "hidden" name = "work_date" value={{worktime.work_date}}>
+      <input type = "hidden" name = "edit_log" value='Updated WT on {{today}}'>
+
+      </form>
+<tr>
+          <td></td>
+          <td></td>
+          <td>
+            <button type="submit" form="edit-wt" >Submit Update</button>
+          </td>
+
+<tr>
+</table>
+<br>
+
+</div>
+&emsp;&emsp;

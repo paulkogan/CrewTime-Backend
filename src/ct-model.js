@@ -62,16 +62,19 @@ module.exports = {
   getAllProperties,
   getAllWorkers,
   getAllTimeEntries,
-  getTimeEntriesById,
+  getTimeEntriesByWorkerId,
+  getTimeEntryById,
   insertTimeEntry,
   insertWorker,
   insertProperty,
   insertUnit,
   findUser,
   updateUser,
+  updateTimeEntry,
   deleteUnit,
   deleteProperty,
   deleteWorker,
+  deleteTimeentry,
   setWorkStatus,
   authUser
 };
@@ -79,9 +82,41 @@ module.exports = {
 //======  CREW TIME FUNCTIONS ==========================================
 
 
-function setWorkStatus (unit_id,work_status) {
-    //console.log("\n\nHere at update: email:"+ updateuser.email +" PW:"+updateuser.password+" ID:"+updateuser.id)
 
+
+
+function updateTimeEntry (newTE) {
+    console.log("\n\nHere at update: unit:"+ JSON.stringify(newTE))
+
+    let queryString = 'UPDATE time_entry SET'
+    +' unit_id = \''+newTE.unit_id+'\','
+    +' work_hours = \''+newTE.work_hours+'\','
+    +' notes = \''+newTE.notes+'\','
+    +' is_overtime = \''+newTE.is_overtime+'\','
+    +' edit_log = \''+newTE.edit_log+'\''
+    +' WHERE id ='+newTE.id+'';
+
+  console.log("In Model, updating TE, the query string is "+queryString)
+
+
+    return new Promise(function(succeed, fail) {
+          connection.query(queryString,
+            function(err, results) {
+                    if (err) {
+                          fail(err)
+                    } else {
+                          //console.log ("In Model, Success - Updated entity with "+JSON.stringify(results)+"\n")
+                          succeed(results.affectedRows)
+                    }
+            }); //connection
+    }); //promise
+} // function
+
+
+
+
+
+function setWorkStatus (unit_id,work_status) {
   let queryString = 'UPDATE units SET unit_work_status = '+work_status+' WHERE id='+unit_id
 
   console.log("In Model, updating work status, the query string is "+queryString)
@@ -96,6 +131,25 @@ function setWorkStatus (unit_id,work_status) {
           }); //connection
   }); //promise
 } // function
+
+
+function deleteTimeentry(te_id) {
+
+  let queryString = 'DELETE FROM time_entry where id='+te_id+";"
+
+  //console.log("In Model, deletng unit the query string is "+queryString)
+  return new Promise(function(succeed, fail) {
+        connection.query(queryString,
+          function(err, results) {
+                  if (err) {
+                        fail(err)
+                  } else {
+                        succeed(results)
+                  }
+          }); //connection
+  }); //promise
+} // function
+
 
 
 
@@ -256,7 +310,7 @@ function getWorkerByLink (passedLink) {
 
 function getWorkerById (passedId) {
   let queryString = "SELECT * from workers WHERE workers.id = '"+passedId+"'";
-  //console.log ("Inmodel - get worker by, query string is "+queryString+"\n")
+  console.log ("In model - get worker by ID, query string is "+queryString+"\n")
   return new Promise(function(succeed, fail) {
         connection.query(queryString,
           function(err, results) {
@@ -291,7 +345,6 @@ function getAllProperties()  {
 
 
 
-
 function getAllWorkers()  {
       let queryString = 'SELECT * from workers';
       return new Promise(function(succeed, fail) {
@@ -307,7 +360,29 @@ function getAllWorkers()  {
       }); //promise
 } // function
 
-function getTimeEntriesById(passedId) {
+
+function getTimeEntryById(teId) {
+
+  let queryString = "SELECT * from time_entry WHERE id = '"+teId+"'";
+
+            return new Promise(function(succeed, fail) {
+                  connection.query(queryString,
+                    function(err, results) {
+                            if (err) {
+                                  console.log("in model, no timeentries for id: "+teId+" got "+err)
+                                  fail(err)
+                            } else  {
+                                  succeed(results[0])
+                            }
+                    }); //connection
+            }); //promise
+
+} // function
+
+
+
+
+function getTimeEntriesByWorkerId(workerId) {
           let queryString =  'SELECT te.id as id, workers.first as worker_first, workers.last as worker_last,'
             + ' CONCAT(workers.first, " ", workers.last) as worker_name, u.name as unit_name, p.name as property_name,'
             + 'DATE_FORMAT(te.work_date, "%b %d %Y") as work_date, te.work_hours as work_hours,'
@@ -316,7 +391,7 @@ function getTimeEntriesById(passedId) {
             +' JOIN units as u ON te.unit_id = u.id'
             +' JOIN workers as workers ON te.worker_id = workers.id'
             +' JOIN properties as p ON te.property_id = p.id'
-            + " WHERE workers.id ='"+passedId+"'"
+            + " WHERE workers.id ='"+workerId+"'"
             +' ORDER BY te.id DESC';
 
             return new Promise(function(succeed, fail) {

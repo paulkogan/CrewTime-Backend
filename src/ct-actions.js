@@ -53,9 +53,170 @@ function getTodaysDate() {
           return today
 }
 
+function convertDate(thisDate) {
+
+          var thisDate = new Date();
+          var dd = thisDate.getDate();
+          var mm = thisDate.getMonth()+1; //January is 0!
+          var yyyy = thisDate.getFullYear();
+          if (dd<10){  dd='0'+dd }
+          if(mm<10){   mm='0'+mm }
+          simpleDate = yyyy+'-'+mm+'-'+dd;
+          return simpleDate
+}
+
+
+
 
 
 //============ CREW-TIME ROUTES ======================
+
+
+
+// the old web-based version of addtime
+actions.get('/delete_timeentry/:id', (req, res) => {
+        if (req.session && req.session.passport) {
+           userObj = req.session.passport.user;
+        }
+
+
+  deleteTimeentry().catch(err => {
+               console.log("Delete timeentry problem: "+err);
+               req.flash('login', "Problems delete timeentry")
+               res.redirect('/workers')
+         })
+
+
+  async function deleteTimeentry() {
+      let timeentry = await ctSQL.getTimeEntryById(req.params.id)
+      timeentry.work_date = timeentry.work_date.toString().slice(0,16)
+      console.log("\ngot time entry"+JSON.stringify(timeentry, null, 4));
+      res.render('ct-confirm-delete-timeentry', {
+                userObj: userObj,
+                postendpoint: '/process_delete_timeentry',
+                timeentry
+        });//render
+  } //async function
+}); //route add mytime
+
+
+
+// insert the new deal and corresponding entity
+actions.post('/process_delete_timeentry', urlencodedParser, (req, res) => {
+
+  //call the async function
+  doDeleteTimeentry().catch(err => {
+        console.log("Process Del Timeentry problem: "+err);
+  })
+
+  async function doDeleteTimeentry() {
+            let formData = req.body
+            console.log("\nDelete timeentry - Raw from the Form: "+JSON.stringify(formData)+"\n");
+            let timeentry =  await ctSQL.getTimeEntryById(formData.timeentryId);
+
+            var delResults = await ctSQL.deleteTimeentry(timeentry.id);
+            console.log( "Delted Time Entry #: "+timeentry.id);
+            req.flash('login', "Deleted Time Entry #: "+timeentry.id);
+            res.redirect('/timeentries/0');
+
+   } //async function
+}); //process route
+
+
+
+
+
+// the old web-based version of addtime
+actions.get('/updateworktime/:wtid', (req, res) => {
+        if (req.session && req.session.passport) {
+           userObj = req.session.passport.user;
+        }
+
+
+  updateWorkTime().catch(err => {
+               console.log("Update WorkTime problem: "+err);
+               req.flash('login', "Problems editing a WorkTime ")
+               res.redirect('/home')
+         })
+
+
+  async function updateWorkTime() {
+      let workTime = await ctSQL.getTimeEntryById(req.params.wtid)
+      console.log("\ngot WT"+JSON.stringify(workTime,null,4));
+      if (workTime) {
+                let worker = await ctSQL.getWorkerById(workTime.worker_id);
+                console.log("\ngot worker"+JSON.stringify(worker,null,4));
+                let property = await ctSQL.getPropertyById(workTime.property_id);
+                let units =  await ctSQL.getUnitsByPropertyId(workTime.property_id);
+                //console.log("\ngot units"+JSON.stringify(units,null,4));
+                let unit =  await ctSQL.getUnitById(workTime.unit_id);
+                let hoursBy30 = lodash.range(.5, 9, .5);
+                console.log("\ngot Hours"+JSON.stringify(hoursBy30,null,4));
+                workTime.work_date = workTime.work_date.toString().slice(0,16)
+
+                res.render('ct-update-worktime', {
+                            userObj: userObj,
+                            postendpoint: '/process-update-worktime',
+                            worktime: workTime,
+                            hoursBy30,
+                            units,
+                            unit,
+                            property,
+                            worker,
+                            today: getTodaysDate()
+                    });//render
+        } else {
+                console.log("No such Worktime "+req.params.wtid);
+                req.flash('login', "Problems editing a WorkTime "+req.params.wtid)
+                res.redirect('/home')
+
+        }
+
+
+  } //async function
+}); //route add mytime
+
+
+
+
+// insert the new transaction - from MOBILE
+actions.post('/process-update-worktime', urlencodedParser, (req, res,next) => {
+
+  processUpdateWorktime().catch(err => {
+        console.log("Process WT Update problem: "+err);
+  })
+
+  async function processUpdateWorktime() {
+
+    let update_wt_form = req.body
+    console.log("\nUpdate WT Raw from the Form: "+JSON.stringify(update_wt_form,null,4)+"\n");
+
+    let teUpdates = {
+            id: update_wt_form.worktime_id,
+            unit_id : update_wt_form.selcted_unit,
+            work_hours : update_wt_form.hours_worked,
+            notes:  update_wt_form.notes,
+            is_overtime: update_wt_form.is_overtime,
+            edit_log: update_wt_form.edit_log
+    }
+
+
+    console.log("\nAbout to insert new Time Entry from MOBILE with "+JSON.stringify(teUpdates, null, 4)+"\n");
+
+    let updateTEResults = await ctSQL.updateTimeEntry(teUpdates);
+    //ct.ctLogger.log('info', '/add-new-time-entry : '+insertTEResults.insertId+" U:"+userObj.email);
+    console.log("\nUpdated Time Entry  "+updateTEResults);
+    //res.send(200,"Time Entry Added");
+    req.flash('login', "Updated Time Entry "+teUpdates.id+" ")
+    res.redirect('/timeentries/0');
+
+  } //async function
+
+
+}); //route
+
+
+
 
 
 
