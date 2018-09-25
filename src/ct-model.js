@@ -63,6 +63,7 @@ module.exports = {
   getAllWorkers,
   getAllTimeEntries,
   getTimeEntriesByWorkerId,
+  getTimeEntriesByWorkerIdAndDates,
   getTimeEntryById,
   insertTimeEntry,
   insertWorker,
@@ -79,7 +80,64 @@ module.exports = {
   authUser
 };
 
+
+
 //======  CREW TIME FUNCTIONS ==========================================
+
+
+function getTimeEntriesByWorkerIdAndDates(workerId, date1, date2) {
+
+
+      console.log("In Model start, worker Id  is "+workerId)
+
+
+    if (workerId >0 )  {
+
+          var queryString =  'SELECT te.id as id, workers.first as worker_first, workers.last as worker_last,'
+            + ' CONCAT(workers.first, " ", workers.last) as worker_name, u.name as unit_name, p.name as property_name,'
+            + 'DATE_FORMAT(te.work_date, "%b %d %Y") as work_date, te.work_hours as work_hours,'
+            +'te.notes as notes, te.date_stamp as date_stamp, te.time_stamp as time_stamp, te.is_overtime as is_overtime'
+            + ' FROM time_entry as te'
+            +' JOIN units as u ON te.unit_id = u.id'
+            +' JOIN workers as workers ON te.worker_id = workers.id'
+            +' JOIN properties as p ON te.property_id = p.id'
+            + " WHERE workers.id ='"+workerId+"'"
+            + " AND te.work_date between '"+date1+"' and '"+date2+"'"
+            +' ORDER BY te.id DESC';
+
+      }  else {
+
+          var queryString =  'SELECT te.id as id, workers.first as worker_first, workers.last as worker_last,'
+            + ' CONCAT(workers.first, " ", workers.last) as worker_name, u.name as unit_name, p.name as property_name,'
+            + 'DATE_FORMAT(te.work_date, "%b %d %Y") as work_date, te.work_hours as work_hours,'
+            +'te.notes as notes, te.date_stamp as date_stamp, te.time_stamp as time_stamp, te.is_overtime as is_overtime'
+            + ' FROM time_entry as te'
+            +' JOIN units as u ON te.unit_id = u.id'
+            +' JOIN workers as workers ON te.worker_id = workers.id'
+            +' JOIN properties as p ON te.property_id = p.id'
+            + " WHERE te.work_date between '"+date1+"' and '"+date2+"'"
+            +' ORDER BY te.id DESC';
+
+      }
+
+
+            console.log("In Model, TE by ID and Date, the query string is "+queryString)
+
+
+            return new Promise(function(succeed, fail) {
+                  connection.query(queryString,
+                    function(err, results) {
+                            if (err) {
+                                  console.log("in model, no timeentries for worker by date: "+workerId+" got "+err)
+                                  fail(err)
+                            } else  {
+                                  succeed(results)
+                            }
+                    }); //connection
+            }); //promise
+
+} // function
+
 
 
 
@@ -91,6 +149,7 @@ function updateTimeEntry (newTE) {
     let queryString = 'UPDATE time_entry SET'
     +' unit_id = \''+newTE.unit_id+'\','
     +' work_hours = \''+newTE.work_hours+'\','
+    +' work_date = \''+newTE.work_date+'\','    
     +' notes = \''+newTE.notes+'\','
     +' is_overtime = \''+newTE.is_overtime+'\','
     +' edit_log = \''+newTE.edit_log+'\''
@@ -310,7 +369,7 @@ function getWorkerByLink (passedLink) {
 
 function getWorkerById (passedId) {
   let queryString = "SELECT * from workers WHERE workers.id = '"+passedId+"'";
-  console.log ("In model - get worker by ID, query string is "+queryString+"\n")
+  //console.log ("In model - get worker by ID, query string is "+queryString+"\n")
   return new Promise(function(succeed, fail) {
         connection.query(queryString,
           function(err, results) {
@@ -383,7 +442,11 @@ function getTimeEntryById(teId) {
 
 
 function getTimeEntriesByWorkerId(workerId) {
-          let queryString =  'SELECT te.id as id, workers.first as worker_first, workers.last as worker_last,'
+
+
+  if (workerId >0 )  {
+
+        var queryString = 'SELECT te.id as id, workers.first as worker_first, workers.last as worker_last,'
             + ' CONCAT(workers.first, " ", workers.last) as worker_name, u.name as unit_name, p.name as property_name,'
             + 'DATE_FORMAT(te.work_date, "%b %d %Y") as work_date, te.work_hours as work_hours,'
             +'te.notes as notes, te.date_stamp as date_stamp, te.time_stamp as time_stamp, te.is_overtime as is_overtime'
@@ -393,6 +456,22 @@ function getTimeEntriesByWorkerId(workerId) {
             +' JOIN properties as p ON te.property_id = p.id'
             + " WHERE workers.id ='"+workerId+"'"
             +' ORDER BY te.id DESC';
+
+
+   } else {
+
+     var queryString =  'SELECT te.id as id, workers.first as worker_first, workers.last as worker_last,'
+       + ' CONCAT(workers.first, " ", workers.last) as worker_name, u.name as unit_name, p.name as property_name,'
+       + 'DATE_FORMAT(te.work_date, "%b %d %Y") as work_date, te.work_hours as work_hours,'
+       +'te.notes as notes, te.date_stamp as date_stamp, te.time_stamp as time_stamp, te.is_overtime as is_overtime'
+       + ' FROM time_entry as te'
+       +' JOIN units as u ON te.unit_id = u.id'
+       +' JOIN workers as workers ON te.worker_id = workers.id'
+       +' JOIN properties as p ON te.property_id = p.id'
+       +' ORDER BY te.id DESC';
+
+
+   }
 
             return new Promise(function(succeed, fail) {
                   connection.query(queryString,

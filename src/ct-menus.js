@@ -34,9 +34,114 @@ let userObj =
 module.exports = router;
 
 
+
+function getTodaysDate() {
+
+          var today = new Date();
+          var dd = today.getDate();
+          var mm = today.getMonth()+1; //January is 0!
+          var yyyy = today.getFullYear();
+          if (dd<10){  dd='0'+dd }
+          if(mm<10){   mm='0'+mm }
+          today = yyyy+'-'+mm+'-'+dd;
+          return today
+}
+
+
 //============ CT Routes ======================
 
 
+router.get('/timeentriesbydate/:id/:sd/:ed', (req, res) => {
+    if (req.session && req.session.passport) {
+                 userObj = req.session.passport.user;
+    }
+
+    //call the async function
+    showTimeEntriesByDateAndId().catch(err => {
+          console.log("Show timeentries for Date and Id problem: "+err);
+    })
+
+
+    async function showTimeEntriesByDateAndId() {
+         try {
+                if (req.params.id > 0) {
+                      var worker = await ctSQL.getWorkerById(req.params.id);
+                } else {
+                      var worker = {
+                        id:0,
+                        first: "Select",
+                        last: "filter"
+                      }
+
+                }
+
+                console.log("\nHere is what is coming in params  "+JSON.stringify(req.params,null,4));
+                //var timeEntries = await ctSQL.getTimeEntriesByWorkerId(req.params.id);
+                 //ct.ctLogger.log('info', '/timeentries/id : '+worker.name+"  U:"+userObj.email);
+                // console.log("\nIn timeentriesbyDate, the dates are  "+req.params.sd+" and "+req.params.ed+"\n");
+                var startDate = req.params.sd;
+                var endDate = req.params.ed;
+                var timeEntries = await ctSQL.getTimeEntriesByWorkerIdAndDates(req.params.id,startDate,endDate);
+                console.log("\nGot timeEntries for id  and date here is 1st  "+JSON.stringify(timeEntries[0],null,5));
+
+
+                //  if(!timeEntries[0]) {
+                //      timeEntries = await ctSQL.getAllTimeEntries();
+                //     console.log("\nGot ALL timeEntries here is 1st  "+JSON.stringify(timeEntries[0],null,5));
+                //  }
+
+          //if no id match
+          } catch (err ){
+                console.log(err+ " TE byDate -- No worker for    "+ req.params.id);
+                let timeEntries = await ctSQL.getAllTimeEntries();
+
+          }
+
+
+
+
+
+          //Build the Worker Filter List
+          let workersForFilter = await ctSQL.getAllWorkers();
+
+          //console.log("\nGot workers for filter, here is 1st  "+JSON.stringify(workersForFilter[0],null,5));
+          //console.log("\nGot selected worker  "+JSON.stringify(worker ,null,5));
+          console.log("\nBefore Render in TEbyD, the dates are  "+startDate+" and "+endDate+"\n");
+          res.render('ct-list-timeentries-bydate', {
+                  userObj: userObj,
+                  sessioninfo: JSON.stringify(req.session),
+                  message: req.flash('login') + "  Showing "+timeEntries.length+" time entries.",
+                  timeEntries: timeEntries,
+                  filterList: workersForFilter,
+                  selectedWorker: worker,
+                  today: getTodaysDate(),
+                  startDate: startDate,
+                  endDate: endDate,
+                  postendpoint: '/process_timeentries_bydate_filter'
+          });//render
+
+    } //async function
+}); //route - timeEntries
+
+
+//need this because we hit a submit button to send search
+router.post('/process_timeentries_bydate_filter', urlencodedParser, (req, res) => {
+
+          if (req.session && req.session.passport) {
+             userObj = req.session.passport.user;
+           }
+           let formData = req.body
+           console.log("\nProcess timeentry by Date filter - Raw from the Form: "+JSON.stringify(formData,null,4)+"\n");
+
+
+           let filterLink = formData.filter_id
+           let startDate = formData.start_date
+           let endDate = formData.end_date
+
+
+           res.redirect('/timeentriesbydate/'+filterLink+'/'+startDate+'/'+endDate);
+
+})
 
 
 
@@ -56,7 +161,7 @@ router.get('/timeentries/:id', (req, res) => {
     async function showTimeEntriesForId() {
          try {
                 var worker = await ctSQL.getWorkerById(req.params.id);
-                console.log("\nGot worker  "+JSON.stringify(worker ,null,5));
+                //console.log("\nGot worker  "+JSON.stringify(worker ,null,5));
                  //ct.ctLogger.log('info', '/timeentries/id : '+worker.name+"  U:"+userObj.email);
 
                 var timeEntries = await ctSQL.getTimeEntriesByWorkerId(req.params.id);
@@ -99,7 +204,8 @@ router.get('/timeentries/:id', (req, res) => {
                   timeEntries: timeEntries,
                   filterList: workersForFilter,
                   selectedWorker: worker,
-                  postendpoint: '/process_timeentries_filter'
+                  postendpoint: '/process_timeentries_filter',
+                  today: getTodaysDate()
           });//render
 
     } //async function
@@ -308,7 +414,7 @@ router.get('/showlogs',  (req, res) => {
 
       let reportMenuOptions = []
       reportMenuOptions[0] = {name:"Workers & Links to Forms", link:"/workers"}
-      reportMenuOptions[1] = {name:"Time Entries with XLS Download", link:"/timeentries/0"}
+      reportMenuOptions[1] = {name:"Time Entries with XLS Download", link:"timeentriesbydate/0/2018-09-01/"+getTodaysDate()}
       reportMenuOptions[2] = {name:"Properties with Units", link:"/buildings"}
       //reportMenuOptions[2] = {name:"Commitments", link:"/commitments"}
 

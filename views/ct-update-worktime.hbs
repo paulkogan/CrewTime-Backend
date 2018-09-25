@@ -34,7 +34,6 @@
             Work Date: {{worktime.work_date}}
             <br>
             Building: {{property.name}}
-            <br>
             <br><br>
             Please update:
   </td>
@@ -55,6 +54,34 @@
       <col width="70%"/>
 
       </colgroup>
+
+
+
+
+
+
+<tr>
+	<td align ="right"> Work Date:</td>
+  <td>
+
+  </td>
+
+
+  <td>
+    <input id="work_date" type = "date" name = "work_date"  value={{worktime.work_date}}>
+
+  </td>
+</tr>
+
+
+<tr>
+          <td></td>
+          <td></td>
+          <td>
+            &nbsp;
+          </td>
+
+<tr>
 
 
 <tr>
@@ -167,7 +194,6 @@
 
       <input type = "hidden" name = "worktime_id" value={{worktime.id}}>
       <input type = "hidden" name = "selected_property_id" value={{property.id}}>
-      <input type = "hidden" name = "work_date" value={{worktime.work_date}}>
       <input type = "hidden" name = "edit_log" value='Updated WT on {{today}}'>
 
       </form>

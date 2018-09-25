@@ -54,14 +54,12 @@ function getTodaysDate() {
 }
 
 function convertDate(thisDate) {
-
-          var thisDate = new Date();
           var dd = thisDate.getDate();
           var mm = thisDate.getMonth()+1; //January is 0!
           var yyyy = thisDate.getFullYear();
           if (dd<10){  dd='0'+dd }
           if(mm<10){   mm='0'+mm }
-          simpleDate = yyyy+'-'+mm+'-'+dd;
+          let simpleDate = yyyy+'-'+mm+'-'+dd;
           return simpleDate
 }
 
@@ -151,9 +149,12 @@ actions.get('/updateworktime/:wtid', (req, res) => {
                 //console.log("\ngot units"+JSON.stringify(units,null,4));
                 let unit =  await ctSQL.getUnitById(workTime.unit_id);
                 let hoursBy30 = lodash.range(.5, 9, .5);
-                console.log("\ngot Hours"+JSON.stringify(hoursBy30,null,4));
-                workTime.work_date = workTime.work_date.toString().slice(0,16)
+                //console.log("\ngot Hours"+JSON.stringify(hoursBy30,null,4));
 
+                workTime.work_date = convertDate(workTime.work_date)
+
+
+                console.log("\nrendering  worktime"+JSON.stringify(workTime,null,4));
                 res.render('ct-update-worktime', {
                             userObj: userObj,
                             postendpoint: '/process-update-worktime',
@@ -197,11 +198,12 @@ actions.post('/process-update-worktime', urlencodedParser, (req, res,next) => {
             work_hours : update_wt_form.hours_worked,
             notes:  update_wt_form.notes,
             is_overtime: update_wt_form.is_overtime,
-            edit_log: update_wt_form.edit_log
+            edit_log: update_wt_form.edit_log,
+            work_date: update_wt_form.work_date
     }
 
 
-    console.log("\nAbout to insert new Time Entry from MOBILE with "+JSON.stringify(teUpdates, null, 4)+"\n");
+    console.log("\nAbout to send updated Time Entry to Model "+JSON.stringify(teUpdates, null, 4)+"\n");
 
     let updateTEResults = await ctSQL.updateTimeEntry(teUpdates);
     //ct.ctLogger.log('info', '/add-new-time-entry : '+insertTEResults.insertId+" U:"+userObj.email);
