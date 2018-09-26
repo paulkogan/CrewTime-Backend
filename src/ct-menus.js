@@ -77,8 +77,12 @@ router.get('/workerinvoice/:id/:sd/:ed', (req, res) => {
           var endDate = req.params.ed;
           var timeEntriesRaw = await ctSQL.getTimeEntriesByWorkerIdAndDates(req.params.id,startDate,endDate);
 
+          let invoice_total = 0
           let timeEntries = timeEntriesRaw.map((te,index) => {
                       te.color = index%2;
+                      te.rate = te.is_overtime ? te.ot_rate : te.reg_rate
+                      te.line_total = te.work_hours * te.rate
+                      invoice_total += te.line_total;
                       return te;
           })
 
@@ -93,7 +97,7 @@ router.get('/workerinvoice/:id/:sd/:ed', (req, res) => {
                   today: getTodaysDate(),
                   startDate: startDate,
                   endDate: endDate,
-
+                  invoice_total
           });//render
     } //async function
 }); //route - timeEntries
@@ -463,7 +467,7 @@ router.get('/showlogs',  (req, res) => {
 
       let reportMenuOptions = []
       reportMenuOptions[0] = {name:"Workers & Links to Forms", link:"/workers"}
-      reportMenuOptions[1] = {name:"Time Entries with XLS Download", link:"timeentries/0"}
+      reportMenuOptions[1] = {name:"Time Entries with Invoice and XLS Download", link:"/timeentriesbydate/0/2018-09-01/"+getTodaysDate()}
       reportMenuOptions[2] = {name:"Properties with Units", link:"/buildings"}
 
       //reportMenuOptions[1] = {name:"Time Entries with XLS Download", link:"timeentriesbydate/0/2018-09-01/"+getTodaysDate()}
@@ -530,9 +534,9 @@ router.get('/showlogs',  (req, res) => {
                  if (!amount) return "$0.00";
                  if (typeof(amount) === 'string') return amount;
                  if (amount >= 0) {
-                    return "$"+amount.toFixed(0).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+                    return "$"+amount.toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
                  } else {
-                    return "($"+(-1*amount).toFixed(0).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")+")";
+                    return "($"+(-1*amount).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")+")";
                  }
      }); //function
 

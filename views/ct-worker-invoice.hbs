@@ -55,8 +55,8 @@
         </td>
         <td></td>
         <td align="right">
-                  Week Start:&nbsp;&nbsp;<br>
-                  Week End:&nbsp;&nbsp;
+                  Period Start:&nbsp;&nbsp;<br>
+                  Period End:&nbsp;&nbsp;
         </td>
         <td>
                 {{startDate}}<br>
@@ -93,19 +93,8 @@
                            <td align="left">Property</td>
                            <td align="left">Unit</td>
                            <td align="left">Work Hours </td>
-
-
-                           <td align="left">
-
-                             {{#ifEqual is_overtime 1}}
-                                      OT
-                             {{/ifEqual}}
-
-
-
-                           </td>
-
-                           <td align="left"></td>
+                           <td align="left">Hour Price</td>
+                           <td align="center">Line Total</td>
                            <td align="left"></td>
 
                       </tr>
@@ -146,15 +135,8 @@
                           <td align="left">{{work_hours}} hrs</td>
 
 
-                          <td align="left">
-
-                                {{#ifEqual is_overtime 1}}
-                                         OT
-                                {{/ifEqual}}
-
-                          </td>
-
-                          <td align="left"></td>
+                          <td align="left">{{#formatUSD rate}}{{/formatUSD}} </td>
+                          <td align="left">{{#formatUSD line_total}}{{/formatUSD}} </td>
                           <td align="left"></td>
                       </tr>
 
@@ -162,6 +144,40 @@
 </div>
 {{/each}}
  {{/if}}
+
+ <div class="time-row-header">
+  <table width = "100%" border = 0>
+
+              <colgroup>
+              <col width="5%"/>
+              <col width="5%"/>
+              <col width="20%"/>
+              <col width="10%"/>
+              <col width="15%"/>
+              <col width="15%"/>
+              <col width="10%"/>
+              <col width="10%"/>
+              <col width="5%"/>
+              </colgroup>
+
+
+                        <tr>
+                            <td align="left"></td>
+                            <td align="left"></td>
+                            <td align="left">Invoice Total:</td>
+                            <td align="left"></td>
+                            <td align="left"></td>
+                            <td align="left"></td>
+                            <td align="left"></td>
+                            <td align="left"><b>{{#formatUSD invoice_total}}{{/formatUSD}} </b></td>
+                            <td align="left"></td>
+
+                       </tr>
+
+ </table>
+ </div>
+
+
 </div>
 </div>
 
