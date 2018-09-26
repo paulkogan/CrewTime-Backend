@@ -1,0 +1,169 @@
+
+<div class="div-outer">
+<div class="div-page">
+
+<div class="div-header">
+<table width = "100%" border = 0>
+
+  <colgroup>
+    <col width="5%"/>
+    <col width="40%"/>
+    <col width="5%"/>
+    <col width="20%"/>
+    <col width="30%"/>
+  </colgroup>
+
+
+<tr class="border-bottom">
+        <td></td>
+        <td>
+              <font family = 'courier' size='5'><b>{{selectedWorker.first}} {{selectedWorker.last}} </font></b>
+
+        </td>
+        <td></td>
+        <td></td>
+        <td><font family = 'courier' size='4'><b>INVOICE</font></b></td>
+
+</tr>
+
+<tr>
+        <td></td>
+        <td>&nbsp;</td>
+        <td> </td>
+        <td align="right">DATE:&nbsp;&nbsp;</td>
+        <td>{{today}}</td>
+
+</tr>
+
+<tr>
+        <td></td>
+        <td>BILL TO:</td>
+        <td></td>
+        <td></td>
+        <td></td>
+
+
+
+</tr>
+<tr>
+          <td></td>
+        <td align="left">
+
+            <b>GP Properties Management LLC</b><br>
+            1324 Lexington Ave, Suite 245<br>
+            New York, NY 10128<br>
+        </td>
+        <td></td>
+        <td align="right">
+                  Week Start:&nbsp;&nbsp;<br>
+                  Week End:&nbsp;&nbsp;
+        </td>
+        <td>
+                {{startDate}}<br>
+                {{endDate}}
+        </td>
+
+
+</tr>
+
+</table>
+</div>
+<br>
+
+<div class="time-row-header">
+ <table width = "100%" border = 0>
+
+             <colgroup>
+             <col width="5%"/>
+             <col width="5%"/>
+             <col width="20%"/>
+             <col width="15%"/>
+             <col width="15%"/>
+             <col width="15%"/>
+             <col width="10%"/>
+             <col width="10%"/>
+             <col width="5%"/>
+             </colgroup>
+
+
+                       <tr>
+                           <td align="left">ID</td>
+                           <td align="left"></td>
+                           <td align="left">Work Date</td>
+                           <td align="left">Property</td>
+                           <td align="left">Unit</td>
+                           <td align="left">Work Hours </td>
+
+
+                           <td align="left">
+
+                             {{#ifEqual is_overtime 1}}
+                                      OT
+                             {{/ifEqual}}
+
+
+
+                           </td>
+
+                           <td align="left"></td>
+                           <td align="left"></td>
+
+                      </tr>
+
+</table>
+</div>
+
+{{#if timeEntries}}
+{{#each timeEntries}}
+
+
+{{#ifEqual color 0}}
+         <div class="time-row-1">
+  {{else}}
+          <div class="time-row-2">
+{{/ifEqual}}
+
+  <table width = "100%" border = 0>
+
+                      <colgroup>
+                      <col width="5%"/>
+                      <col width="5%"/>
+                      <col width="20%"/>
+                      <col width="15%"/>
+                      <col width="15%"/>
+                      <col width="15%"/>
+                      <col width="10%"/>
+                      <col width="10%"/>
+                      <col width="5%"/>
+                      </colgroup>
+
+                      <tr>
+                          <td align="left">{{id}}</td>
+                          <td align="left"></td>
+                          <td align="left">{{work_date}}</td>
+                          <td align="left">{{property_name}}</td>
+                          <td align="left">{{unit_name}}</td>
+                          <td align="left">{{work_hours}} hrs</td>
+
+
+                          <td align="left">
+
+                                {{#ifEqual is_overtime 1}}
+                                         OT
+                                {{/ifEqual}}
+
+                          </td>
+
+                          <td align="left"></td>
+                          <td align="left"></td>
+                      </tr>
+
+</table>
+</div>
+{{/each}}
+ {{/if}}
+</div>
+</div>
+
+ &emsp; &emsp;
+ <br><br>

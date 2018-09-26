@@ -50,6 +50,58 @@ function getTodaysDate() {
 
 //============ CT Routes ======================
 
+router.get('/workerinvoice/:id/:sd/:ed', (req, res) => {
+    if (req.session && req.session.passport) {
+                 userObj = req.session.passport.user;
+    }
+
+    //call the async function
+    doWorkerInvoice().catch(err => {
+          console.log("Worker Invoice problem: "+err);
+    })
+
+
+    async function   doWorkerInvoice() {
+         try {
+
+                  var worker = await ctSQL.getWorkerById(req.params.id);
+
+          } catch (err ){
+                console.log(err+ " TE byDate -- No worker for    "+ req.params.id);
+                res.redirect('/workers')
+
+          }
+
+          console.log("\nHere is what is coming in params  "+JSON.stringify(req.params,null,4));
+          var startDate = req.params.sd;
+          var endDate = req.params.ed;
+          var timeEntriesRaw = await ctSQL.getTimeEntriesByWorkerIdAndDates(req.params.id,startDate,endDate);
+
+          let timeEntries = timeEntriesRaw.map((te,index) => {
+                      te.color = index%2;
+                      return te;
+          })
+
+          console.log("\nGot timeEntries for id  and date here is 1st  "+JSON.stringify(timeEntries[0],null,5));
+          console.log("\nBefore Render in TEbyD, the dates are  "+startDate+" and "+endDate+"\n");
+          res.render('ct-worker-invoice', {
+                  userObj: userObj,
+                  sessioninfo: JSON.stringify(req.session),
+                  message: req.flash('login') + "  Showing "+timeEntries.length+" time entries.",
+                  timeEntries: timeEntries,
+                  selectedWorker: worker,
+                  today: getTodaysDate(),
+                  startDate: startDate,
+                  endDate: endDate,
+
+          });//render
+    } //async function
+}); //route - timeEntries
+
+
+
+
+
 
 router.get('/timeentriesbydate/:id/:sd/:ed', (req, res) => {
     if (req.session && req.session.passport) {
@@ -96,10 +148,6 @@ router.get('/timeentriesbydate/:id/:sd/:ed', (req, res) => {
                 let timeEntries = await ctSQL.getAllTimeEntries();
 
           }
-
-
-
-
 
           //Build the Worker Filter List
           let workersForFilter = await ctSQL.getAllWorkers();
@@ -247,7 +295,8 @@ router.get('/workers',  (req, res) => {
                                   userObj: userObj,
                                   sessioninfo: JSON.stringify(req.session),
                                   message: req.flash('login') + "Showing "+workers.length+" workers.",
-                                  workers: workers
+                                  workers: workers,
+                                  today:getTodaysDate()
                           });//render
 
 
@@ -414,10 +463,10 @@ router.get('/showlogs',  (req, res) => {
 
       let reportMenuOptions = []
       reportMenuOptions[0] = {name:"Workers & Links to Forms", link:"/workers"}
-      reportMenuOptions[1] = {name:"Time Entries with XLS Download", link:"timeentriesbydate/0/2018-09-01/"+getTodaysDate()}
+      reportMenuOptions[1] = {name:"Time Entries with XLS Download", link:"timeentries/0"}
       reportMenuOptions[2] = {name:"Properties with Units", link:"/buildings"}
-      //reportMenuOptions[2] = {name:"Commitments", link:"/commitments"}
 
+      //reportMenuOptions[1] = {name:"Time Entries with XLS Download", link:"timeentriesbydate/0/2018-09-01/"+getTodaysDate()}
 
 
 

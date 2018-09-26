@@ -8,11 +8,20 @@
   <a href = '/updateuser'>{{userObj.firstname}}</a>&emsp;<img width='50' src={{userObj.photo}}>
 </td></tr>
 
-<tr><td align = "left">
+<tr>
+  <td align = "left">
   <a href = "/">Home</a>&emsp;
-</td><td>
-</td><td align = "right">
-</td></tr>
+</td>
+
+<td>
+          {{today}}
+</td>
+
+<td align = "right">
+</td>
+
+
+</tr>
 
 <tr><td>
   <br>
@@ -40,6 +49,7 @@
             <td align="left"><b>Last</b></td>
             <td align="left"><b>Phone</b></td>
             <td align="left"><b>AddTime Form Link  </b></td>
+              <td align="left"><b>Invoice </b></td>
             <td align="center"></td>
          </tr>
   </table>
@@ -59,7 +69,8 @@
                 <col width="15%"/>
                 <col width="15%"/>
                 <col width="15%"/>
-                <col width="40%"/>
+                <col width="30%"/>
+                <col width="10%"/>
                 <col width="10%"/>
                 </colgroup>
 
@@ -72,9 +83,15 @@
           <td align="left">{{phone}}</td>
           <td align="left">
                 <a href = "http://crewt-rux-04.s3-website.us-east-2.amazonaws.com/timegrid/{{link}}">http://www.gpproperties.net/timegrid/{{link}}</a>
-
           </td>
-          <td align="center"><a href = "/delete_worker/{{id}}">Del.Worker</a></td>
+
+
+          <td align="center">
+                <a href = '/workerinvoice/{{id}}/2018-09-01/{{../today}}/'>Invoice</a>
+          </td>
+
+          <td align="center"><a href = "/delete_worker/{{id}}">Del.Worker</a>
+          </td>
        </tr>
 
 
