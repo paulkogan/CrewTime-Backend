@@ -1,12 +1,51 @@
 
-<div>
-<table width = "100%" border = 0>
+<div class="div-outer">
+<div class="div-header">
 
-<tr><td>
-  <font family = 'courier' size='5'><b>Crew Time</b> - Workers List</font>
-</td><td align = "right">
-  <a href = '/updateuser'>{{userObj.firstname}}</a>&emsp;<img width='50' src={{userObj.photo}}>
-</td></tr>
+  <table width = "100%" border = 0>
+
+    <colgroup>
+      <col width="35%"/>
+      <col width="10%"/>
+      <col width="20%"/>
+      <col width="15%"/>
+      <col width="15%"/>
+    </colgroup>
+
+
+  <tr>
+          <td>
+              <table width = "100%" border = 0 padding="0">
+                   <tr>
+                     <td>
+                            <img width="60"  src="http://crew-time.us-east-2.elasticbeanstalk.com/static/GP_Prop_logo_1.png">
+                     </td>
+                     <td>
+                       <table width = "100%" border = 0>
+                            <tr>
+                                <td>
+                                      <font family = 'courier' size='5'><b>Crew-Time </b></font>
+                                 </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                      Workers List with TimeEntry Links
+                                 </td>
+                            </tr>
+
+                      </table>
+                    </td>
+                   </tr>
+              </table>
+          </td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td align = "right">
+                  <a href = '/updateuser'>{{userObj.firstname}}</a>&emsp;<img width='50' src={{userObj.photo}}>
+          </td>
+  </tr>
+
 
 <tr>
   <td align = "left">
@@ -14,7 +53,7 @@
 </td>
 
 <td>
-          {{today}}
+
 </td>
 
 <td align = "right">
@@ -29,27 +68,29 @@
 </td></tr>
 </table>
 </div>
-
+<br>
 
 <div class="w3-panel w3-white w3-leftbar
- w3-rightbar w3-border-lightgrey w3-margin-right w3-margin-left">
+ w3-rightbar w3-border-grey w3-margin-right w3-margin-left">
  <table width = "100%" border = 0>
-       <colgroup>
-       <col width="5%"/>
-       <col width="20%"/>
-       <col width="20%"/>
-       <col width="20%"/>
-       <col width="20%"/>
-       <col width="15%"/>
-       </colgroup>
+   <colgroup>
+   <col width="5%"/>
+   <col width="15%"/>
+   <col width="10%"/>
+   <col width="15%"/>
+   <col width="40%"/>
+   <col width="5%"/>
+   <col width="5%"/>
+   </colgroup>
 
-        <tr>
+
+        <tr class="bold-text">
             <td align="center"></td>
-            <td align="left"><b>First</b></td>
-            <td align="left"><b>Last</b></td>
-            <td align="left"><b>Phone</b></td>
-            <td align="left"><b>AddTime Form Link  </b></td>
-              <td align="left"><b>Invoice </b></td>
+            <td align="left">First</td>
+            <td align="left">Last</td>
+            <td align="left">   Phone</td>
+            <td align="center"> Add TimeEntry Link  </td>
+            <td align="right">Update</td>
             <td align="center"></td>
          </tr>
   </table>
@@ -63,16 +104,16 @@
          <div class="w3-panel w3-white w3-leftbar
           w3-rightbar w3-border-grey w3-margin-right w3-margin-left">
 
-          <table width = "100%" border = 1>
-                <colgroup>
-                <col width="5%"/>
-                <col width="15%"/>
-                <col width="15%"/>
-                <col width="15%"/>
-                <col width="30%"/>
-                <col width="10%"/>
-                <col width="10%"/>
-                </colgroup>
+          <table width = "100%" border = 0>
+            <colgroup>
+            <col width="5%"/>
+            <col width="15%"/>
+            <col width="10%"/>
+            <col width="15%"/>
+            <col width="40%"/>
+            <col width="5%"/>
+            <col width="5%"/>
+            </colgroup>
 
 
 
@@ -87,10 +128,13 @@
 
 
           <td align="center">
-                <a href = '/workerinvoice/{{id}}/2018-09-01/{{../today}}/'>Invoice</a>
+                <a href = '/updateworker/{{id}}/'>Edit</a>
           </td>
 
-          <td align="center"><a href = "/delete_worker/{{id}}">Del.Worker</a>
+
+
+
+          <td align="center"><a href = "/delete_worker/{{id}}">Delete</a>
           </td>
        </tr>
 
@@ -106,3 +150,4 @@
 <br><br>
 &emsp; &emsp;
  <br><br>
+ </div>

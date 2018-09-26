@@ -71,6 +71,80 @@ function convertDate(thisDate) {
 
 
 
+
+// the old web-based version of addtime
+actions.get('/updateworker/:id', (req, res) => {
+        if (req.session && req.session.passport) {
+           userObj = req.session.passport.user;
+        }
+
+
+  updateWorker().catch(err => {
+               console.log("Problems updating worker : "+err);
+               req.flash('login', "Problems updating worker ")
+               res.redirect('/workers')
+         })
+
+
+  async function updateWorker() {
+      let worker = await ctSQL.getWorkerById(req.params.id);
+      console.log("\nin update got Worker"+JSON.stringify(worker,null,4));
+      if (worker) {
+                res.render('ct-update-worker', {
+                            userObj: userObj,
+                            postendpoint: '/process-update-worker',
+                            worker
+                    });//render
+        } else {
+                console.log("No such Worker "+req.params.id);
+                req.flash('login', "Problems editing a Worker "+req.params.id)
+                res.redirect('/workers')
+
+        }
+
+
+  } //async function
+}); //route add mytime
+
+
+
+
+// insert the new transaction - from MOBILE
+actions.post('/process-update-worker', urlencodedParser, (req, res,next) => {
+
+  processUpdateWorker().catch(err => {
+        console.log("Process Worker Update problem: "+err);
+  })
+
+  async function processUpdateWorker() {
+
+    let update_worker_form = req.body
+    console.log("\nUpdate Worker Raw from the Form: "+JSON.stringify(update_worker_form,null,4)+"\n");
+    //IF form fields correspond exactly to object fields
+    const workerUpdate  = {...update_worker_form}
+
+    console.log("\nAbout to send updated Time Entry to Model "+JSON.stringify(workerUpdate , null, 4)+"\n");
+
+        let updateResults = await ctSQL.updateWorker(workerUpdate);
+        //ct.ctLogger.log('info', '/add-new-time-entry : '+insertTEResults.insertId+" U:"+userObj.email);
+        console.log("\nUpdated Worker  "+updateResults);
+        //res.send(200,"Time Entry Added");
+        req.flash('login', "Updated Worker "+workerUpdate.id+" ")
+        res.redirect('/workers');
+
+      } //async function
+
+
+    }); //route
+
+
+
+
+
+
+
+
+
 // the old web-based version of addtime
 actions.get('/delete_timeentry/:id', (req, res) => {
         if (req.session && req.session.passport) {
@@ -189,33 +263,52 @@ actions.post('/process-update-worktime', urlencodedParser, (req, res,next) => {
 
   async function processUpdateWorktime() {
 
-    let update_wt_form = req.body
-    console.log("\nUpdate WT Raw from the Form: "+JSON.stringify(update_wt_form,null,4)+"\n");
+      let update_te_form = req.body
+      console.log("\nUpdate WT Raw from the Form: "+JSON.stringify(update_te_form,null,4)+"\n");
 
-    let teUpdates = {
-            id: update_wt_form.worktime_id,
-            unit_id : update_wt_form.selcted_unit,
-            work_hours : update_wt_form.hours_worked,
-            notes:  update_wt_form.notes,
-            is_overtime: update_wt_form.is_overtime,
-            edit_log: update_wt_form.edit_log,
-            work_date: update_wt_form.work_date
-    }
-
-
-    console.log("\nAbout to send updated Time Entry to Model "+JSON.stringify(teUpdates, null, 4)+"\n");
-
-    let updateTEResults = await ctSQL.updateTimeEntry(teUpdates);
-    //ct.ctLogger.log('info', '/add-new-time-entry : '+insertTEResults.insertId+" U:"+userObj.email);
-    console.log("\nUpdated Time Entry  "+updateTEResults);
-    //res.send(200,"Time Entry Added");
-    req.flash('login', "Updated Time Entry "+teUpdates.id+" ")
-    res.redirect('/timeentries/0');
-
-  } //async function
+      let teUpdates = {
+              id: update_te_form.worktime_id,
+              unit_id : update_te_form.selcted_unit,
+              work_hours : update_te_form.hours_worked,
+              notes:  update_te_form.notes,
+              is_overtime: update_te_form.is_overtime,
+              edit_log: update_te_form.edit_log,
+              work_date: update_te_form.work_date
+      }
 
 
-}); //route
+      console.log("\nAbout to send updated Time Entry to Model "+JSON.stringify(teUpdates, null, 4)+"\n");
+
+      let updateTEResults = await ctSQL.updateTimeEntry(teUpdates);
+      //ct.ctLogger.log('info', '/add-new-time-entry : '+insertTEResults.insertId+" U:"+userObj.email);
+      console.log("\nUpdated Time Entry  "+updateTEResults);
+      //res.send(200,"Time Entry Added");
+      req.flash('login', "Updated Time Entry "+teUpdates.id+" ")
+      res.redirect('/timeentries/0');
+
+    } //async function
+
+  }); //route
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

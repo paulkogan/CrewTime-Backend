@@ -72,6 +72,7 @@ module.exports = {
   findUser,
   updateUser,
   updateTimeEntry,
+  updateWorker,
   deleteUnit,
   deleteProperty,
   deleteWorker,
@@ -82,7 +83,40 @@ module.exports = {
 
 
 
+
 //======  CREW TIME FUNCTIONS ==========================================
+
+function updateWorker(newWorker) {
+    console.log("\n\nHere at update: unit:"+ JSON.stringify(newWorker))
+
+    let queryString = 'UPDATE workers SET'
+    +' first = \''+newWorker.first+'\','
+    +' last = \''+newWorker.last+'\','
+    +' link = \''+newWorker.link+'\','
+    +' phone= \''+newWorker.phone+'\','
+    +' reg_rate = \''+newWorker.reg_rate+'\','
+    +' ot_rate= \''+newWorker.ot_rate+'\''
+    +' WHERE id ='+newWorker.id+'';
+
+  console.log("In Model, updating Worker, the query string is "+queryString)
+
+
+    return new Promise(function(succeed, fail) {
+          connection.query(queryString,
+            function(err, results) {
+                    if (err) {
+                          fail(err)
+                    } else {
+                          //console.log ("In Model, Success - Updated entity with "+JSON.stringify(results)+"\n")
+                          succeed(results.affectedRows)
+                    }
+            }); //connection
+    }); //promise
+} // function
+
+
+
+
 
 
 function getTimeEntriesByWorkerIdAndDates(workerId, date1, date2) {
