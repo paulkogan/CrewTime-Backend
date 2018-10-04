@@ -29,7 +29,7 @@ const secret = "cat"
 const winston = require('winston')
 const nodePort = 8081;
 
-const ctVersion = "5.16 +Edit Worker"
+const ctVersion = "5.17 +XLS Filtered by Date"
 
 
 let ctLogger = winston.createLogger({

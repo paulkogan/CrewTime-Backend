@@ -50,8 +50,95 @@ function getTodaysDate() {
 
 //============ CT Routes ======================
 
+router.get('/download_csv2/:id/:sd/:ed', (req, res) => {
+
+      downloadCSVWorkerDates().catch(err => {
+            console.log("DownloadTimeEntries problem: "+err);
+      })
+      let fileName = "file";
+      async function downloadCSVWorkerDates() {
+                //try {
 
 
+                  //var timeEntries = await ctSQL.getTimeEntriesByWorkerId(req.params.id);
+
+                  var startDate = req.params.sd;
+                  var endDate = req.params.ed;
+                  var timeEntriesRaw = await ctSQL.getTimeEntriesByWorkerIdAndDates(req.params.id,startDate,endDate);
+                  console.log("\nin DOWNLOAD CSV2 - Got timeEntries for entity * date - here is 1st  "+JSON.stringify(timeEntriesRaw[0],null,5));
+
+                  if (req.params.id >0 ) {
+                        let filerWorker = await ctSQL.getWorkerById(req.params.id)
+                        fileName = filerWorker.last+"-"+startDate+"--"+endDate+"_CT_TimeEntries.csv"
+                        console.log("The filetered filename is "+fileName);
+                  } else {
+                        fileName = "AllWorkers-"+startDate+"--"+endDate+"_CT_TimeEntries.csv"
+
+                  }
+
+            // } catch (err ){
+            //       console.log("had a problem filtering "+err)
+            //       var timeEntriesRaw = await ctSQL.getAllTimeEntries();
+            //       console.log("\nin DOWNLOAD CSV2 Getting All timeEntries - 1st"+JSON.stringify(timeEntriesRaw[0],null,5));
+            //       fileName = "All_CT_TimeEntries.csv"
+            //
+            // }
+
+            var  selectTimeEntries = timeEntriesRaw.map(function(element) {
+                        let rate = element.is_overtime ? element.ot_rate : element.reg_rate
+                        let line_total = rate * element.work_hours
+                        console.log("for "+element.id+" the rate is "+rate+" and orig line total is "+ line_total)
+                        return  {
+                          id: element.id,
+                          worker_name: element.worker_name,
+                          property_name: element.property_name,
+                          unit_name: element.unit_name,
+                          work_date: element.work_date,
+                          work_hours: element.work_hours,
+                          is_overtime: element.is_overtime,
+                          rate: rate,
+                          line_total: line_total,
+                          time_stamp: element.time_stamp,
+                          date_stamp: element.date_stamp,
+                          notes: element.notes
+                        }
+            });
+
+
+                  let timeEntriesCSV = await createTECSVforDownload(selectTimeEntries);
+                  //console.log("In CT-menus, the CSV file is \n"+timeEntriesCSV+"\n")
+                  res.setHeader('Content-disposition', 'attachment; filename='+fileName);
+                  res.set('Content-Type', 'text/csv');
+                  res.status(200).send(timeEntriesCSV);
+
+    }; //async function
+
+}); //route
+
+
+
+async function createTECSVforDownload(responseArray) {
+
+        let columns = Object.keys(responseArray[0]);
+        console.log(" Columns are: " + columns +"\n")
+
+        let fields = []
+        columns.forEach((column,index) => {
+              fields[index] = {
+                label:column,
+                value:column
+              }
+        })
+
+
+        console.log(" Fields are: " + JSON.stringify(fields,null,4) +"\n")
+        let options = { fields };
+      //console.log("in create CSV - Trans JSON data has  " + JSON.stringify(responseArray,null,4) +"\n")
+        const csv = j2csvParser(responseArray, options);
+        //console.log("\nTHE CSV is "+csv);
+        return csv;
+
+}
 
 
 
@@ -320,34 +407,6 @@ router.get('/workers',  (req, res) => {
 }); //  entities route
 
 
-
-
-
-async function createTECSVforDownload(responseArray) {
-
-        let columns = Object.keys(responseArray[0]);
-        console.log(" Columns are: " + columns +"\n")
-
-        let fields = []
-        columns.forEach((column,index) => {
-              fields[index] = {
-                label:column,
-                value:column
-              }
-        })
-
-
-        console.log(" Fields are: " + JSON.stringify(fields,null,4) +"\n")
-        let options = { fields };
-      //console.log("in create CSV - Trans JSON data has  " + JSON.stringify(responseArray,null,4) +"\n")
-        const csv = j2csvParser(responseArray, options);
-        console.log("\nTHE CSV is "+csv);
-        return csv;
-
-}
-
-
-
 router.get('/download_csv/:id', (req, res) => {
 
       downloadCSVTimeEntries().catch(err => {
@@ -394,6 +453,11 @@ router.get('/download_csv/:id', (req, res) => {
     }; //async function
 
 }); //route
+
+
+
+
+
 
 
 
