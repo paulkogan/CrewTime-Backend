@@ -10,44 +10,52 @@ const ctApp =  require('../ct');
 //const bcrypt = require('bcrypt');
 
 //CHANGE ENV HERE
-const env = 'ct-dev'
+// const env = 'ct-prod'
+// let options = {};
 
-let options = {};
 
 
-if (env === 'ct-dev') {
-        options = {
-          user: deployConfig.get('CT_DEV_USER'),
-          password: deployConfig.get('CT_DEV_PASSWORD'),
-          host: deployConfig.get('CT_DEV_ENDPOINT'),
-          database: deployConfig.get('CT_DEV_DBNAME'),
+let ct_options = {
+          user: deployConfig.get('CT_USER'),
+          password: deployConfig.get('CT_PASSWORD'),
+          host: deployConfig.get('CT_ENDPOINT'),
+          database: deployConfig.get('CT_DBNAME'),
           port: 3306,
           multipleStatements: true
-        };
-}
+  };
 
 
 
-if (env === 'ct-prod') {
-        options = {
-          user: deployConfig.get('PROD_USER'),
-          password: deployConfig.get('PROD_PASSWORD'),
-          host: deployConfig.get('PROD_ENDPOINT'),
-          database: deployConfig.get('PROD_DBNAME'),
+
+
+let ira_options = {
+          user: deployConfig.get('IRA_USER'),
+          password: deployConfig.get('IRA_PASSWORD'),
+          host: deployConfig.get('IRA_ENDPOINT'),
+          database: deployConfig.get('IRA_DBNAME'),
           port: 3306,
           multipleStatements: true
-        };
-}
+};
 
 
-const connection = mysql.createConnection(options);
+const connection = mysql.createConnection(ct_options);
+const ira_connection = mysql.createConnection(ira_options);
 
 connection.connect(function(err) {
       if (err) {
-            console.error('error connecting to SQL: ' + err.stack);
+            console.error('error connecting to CT SQL: ' + err.stack);
             return;
       } else {
-            console.log('connected as id ' + connection.threadId+"to ");
+            console.log('connected to CT as id ' + connection.threadId+"to ");
+      }
+});
+
+ira_connection.connect(function(err) {
+      if (err) {
+            console.error('error connecting to IRA SQL: ' + err.stack);
+            return;
+      } else {
+            console.log('connected to IRA as id ' + connection.threadId+"to ");
       }
 });
 
@@ -69,8 +77,6 @@ module.exports = {
   insertWorker,
   insertProperty,
   insertUnit,
-  findUser,
-  updateUser,
   updateTimeEntry,
   updateWorker,
   deleteUnit,
@@ -78,6 +84,8 @@ module.exports = {
   deleteWorker,
   deleteTimeentry,
   setWorkStatus,
+  findUser,
+  updateUser,
   authUser
 };
 
@@ -635,7 +643,7 @@ function insertUnit(newUnit) {
 
 //without Bcrypt for now
 function authUser (email, password, done) {
-  connection.query(
+  ira_connection.query(
     'SELECT * FROM users WHERE email = ?', email,  (err, results) => {
       if (!err && !results.length) {
               done("Not found "+ email+" got "+err, null);
@@ -654,8 +662,8 @@ function authUser (email, password, done) {
         done(null, results[0]);
 
       } else {
-          console.log("\nbad pw "+password+",  checkPlainPW is: "+checkPlainPW)
-          ctApp.logger.log('info', '/login failure U:'+email);
+          console.log("\n AUTH USER - bad pw "+password+",  checkPlainPW is: "+checkPlainPW)
+          //ctApp.logger.log('info', '/login failure U:'+email);
           done("bad password", null)
 
       }
@@ -673,7 +681,7 @@ function updateUser (updateuser) {
     console.log("\n\nHere at update: email:"+ updateuser.email +" PW:"+updateuser.password+" ID:"+updateuser.id)
 
     return new Promise(   function(succeed, fail) {
-          connection.query(
+          ira_connection.query(
           'UPDATE users SET email = ?, photo =?, password=? WHERE id=?',
           [updateuser.email, updateuser.photo, updateuser.password, updateuser.id],
           function(err, results) {
@@ -692,7 +700,7 @@ function updateUser (updateuser) {
 
 
 function findUser (email, cb) {
-  connection.query(
+  ira_connection.query(
     'SELECT * FROM users WHERE email = ?', email,  (err, results) => {
       if (!err && !results.length) {
               cb("Not found "+ email+" got "+err);

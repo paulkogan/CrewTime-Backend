@@ -19,7 +19,7 @@ const j2csvParser = require('json2csv').parse;
 
 
 //default session info
-let sessioninfo = "no session"
+let sessionInfo = "no session"
 let userObj =
 {
   "id":0,
@@ -48,9 +48,62 @@ function getTodaysDate() {
 }
 
 
-//============ CT Routes ======================
+//============ CT ROUTES ======================
 
-router.get('/download_csv2/:id/:sd/:ed', (req, res) => {
+
+
+router.get('/buildings',  checkAuthentication, (req, res) => {
+          if (req.session && req.session.passport) {
+             userObj = req.session.passport.user;
+
+           }
+
+ //call the async function
+ buildings_units().catch(err => {
+       console.log("Show timeentriesForId problem: "+err);
+ })
+
+
+async function buildings_units() {
+                  let allBuildings = await ctSQL.getAllProperties()
+
+                  let allBuildingsUnits = await Promise.all(
+                       allBuildings.map( async (building) => {
+                              let units = await ctSQL.getUnitsByPropertyId(building.id);
+                              //let xBuilding = Object.assign({},building);
+                              building.units = units
+                              building.name = building.name.slice(0,15)
+                              //console.log("Got building: "+JSON.stringify(xBuilding,null,4));
+                              return building
+
+                        })
+                   )
+
+
+                //  console.log("Here are ALL the buildings same bld: "+JSON.stringify(allBuildingsUnits,null,4));
+
+
+                  res.render('ct-list-buildings', {
+                          userObj: userObj,
+                          sessionObj:req.session,
+                          sessionInfo: JSON.stringify(req.session),
+                          postendpoint: '/process_work_status',
+                          message: req.flash('login') + "Showing "+allBuildingsUnits.length+" buildings.",
+                          buildings: allBuildingsUnits
+                  });//render
+
+
+
+
+
+   } //async function
+
+}); //  buildings route
+
+
+
+
+router.get('/download_csv2/:id/:sd/:ed', checkAuthentication, (req, res) => {
 
       downloadCSVWorkerDates().catch(err => {
             console.log("DownloadTimeEntries problem: "+err);
@@ -145,7 +198,7 @@ async function createTECSVforDownload(responseArray) {
 
 
 
-router.get('/workerinvoice/:id/:sd/:ed', (req, res) => {
+router.get('/workerinvoice/:id/:sd/:ed', checkAuthentication, (req, res) => {
     if (req.session && req.session.passport) {
                  userObj = req.session.passport.user;
     }
@@ -185,7 +238,8 @@ router.get('/workerinvoice/:id/:sd/:ed', (req, res) => {
           console.log("\nBefore Render in TEbyD, the dates are  "+startDate+" and "+endDate+"\n");
           res.render('ct-worker-invoice', {
                   userObj: userObj,
-                  sessioninfo: JSON.stringify(req.session),
+                  sessionObj:req.session,
+                  sessionInfo: JSON.stringify(req.session),
                   message: req.flash('login') + "  Showing "+timeEntries.length+" time entries.",
                   timeEntries: timeEntries,
                   selectedWorker: worker,
@@ -202,7 +256,7 @@ router.get('/workerinvoice/:id/:sd/:ed', (req, res) => {
 
 
 
-router.get('/timeentriesbydate/:id/:sd/:ed', (req, res) => {
+router.get('/timeentriesbydate/:id/:sd/:ed', checkAuthentication, (req, res) => {
     if (req.session && req.session.passport) {
                  userObj = req.session.passport.user;
     }
@@ -256,7 +310,8 @@ router.get('/timeentriesbydate/:id/:sd/:ed', (req, res) => {
           console.log("\nBefore Render in TEbyD, the dates are  "+startDate+" and "+endDate+"\n");
           res.render('ct-list-timeentries-bydate', {
                   userObj: userObj,
-                  sessioninfo: JSON.stringify(req.session),
+                  sessionObj:req.session,
+                  sessionInfo: JSON.stringify(req.session),
                   message: req.flash('login') + "  Showing "+timeEntries.length+" time entries.",
                   timeEntries: timeEntries,
                   filterList: workersForFilter,
@@ -293,7 +348,7 @@ router.post('/process_timeentries_bydate_filter', urlencodedParser, (req, res) =
 
 
 
-router.get('/timeentries/:id', (req, res) => {
+router.get('/timeentries/:id', checkAuthentication, (req, res) => {
     if (req.session && req.session.passport) {
                  userObj = req.session.passport.user;
     }
@@ -346,7 +401,8 @@ router.get('/timeentries/:id', (req, res) => {
 
           res.render('ct-list-timeentries', {
                   userObj: userObj,
-                  sessioninfo: JSON.stringify(req.session),
+                  sessionObj:req.session,
+                  sessionInfo: JSON.stringify(req.session),
                   message: req.flash('login') + "  Showing "+timeEntries.length+" time entries",
                   timeEntries: timeEntries,
                   filterList: workersForFilter,
@@ -383,7 +439,7 @@ router.get('/timeentries/', (req, res) => {
 
 
 
-router.get('/workers',  (req, res) => {
+router.get('/workers', checkAuthentication,  (req, res) => {
           if (req.session && req.session.passport) {
              userObj = req.session.passport.user;
 
@@ -391,8 +447,9 @@ router.get('/workers',  (req, res) => {
           ctSQL.getAllWorkers().then(
                 function(workers) {
                           res.render('ct-list-workers', {
-                                  userObj: userObj,
-                                  sessioninfo: JSON.stringify(req.session),
+                            userObj: userObj,
+                            sessionObj:req.session,
+                            sessionInfo: JSON.stringify(req.session),
                                   message: req.flash('login') + "Showing "+workers.length+" workers.",
                                   workers: workers,
                                   today:getTodaysDate()
@@ -407,7 +464,7 @@ router.get('/workers',  (req, res) => {
 }); //  entities route
 
 
-router.get('/download_csv/:id', (req, res) => {
+router.get('/download_csv/:id', checkAuthentication, (req, res) => {
 
       downloadCSVTimeEntries().catch(err => {
             console.log("DownloadTimeEntries problem: "+err);
@@ -466,7 +523,7 @@ router.get('/download_csv/:id', (req, res) => {
 
 
 
-router.get('/showlogs',  (req, res) => {
+router.get('/showlogs',  checkAuthentication, (req, res) => {
         if (req.session && req.session.passport) {
            userObj = req.session.passport.user;
         }
@@ -510,8 +567,9 @@ router.get('/showlogs',  (req, res) => {
                         }
 
                         res.render('show-logs', {
-                                userObj: userObj,
-                                sessioninfo: req.session,
+                          userObj: userObj,
+                          sessionObj:req.session,
+                          sessionInfo: JSON.stringify(req.session),
                                 message: req.flash('login') + " ",
                                 logFilename: fileName,
                                 logRows:logRows
@@ -555,8 +613,10 @@ router.get('/showlogs',  (req, res) => {
 
 
       res.render('home', {
-              userObj: userObj,
+
               message: req.flash('login'),
+              userObj: userObj,
+              sessionObj:req.session,
               sessionInfo: JSON.stringify(req.session),
               reportmenuoptions: reportMenuOptions,
               adminmenuoptions: adminMenuOptions,
@@ -565,7 +625,7 @@ router.get('/showlogs',  (req, res) => {
 
   });
 
-  router.get('/shutdown123', (req, res) => {
+  router.get('/shutdown123', checkAuthentication, (req, res) => {
           shutDownServer()
           res.send("Good--bye!")
   })
@@ -580,11 +640,7 @@ router.get('/showlogs',  (req, res) => {
 
  //NOT FIRST TIME LOGIN
  function checkAuthentication(req,res,next){
-           if (userObj.id == 0) {
-                req.session.return_to = "/";
-           } else {
-                req.session.return_to = req.url;
-           }
+
 
            if(req.isAuthenticated()){
                   console.log("YES, authenticated"+req.url)
@@ -595,6 +651,7 @@ router.get('/showlogs',  (req, res) => {
            } else {
                console.log("NO, not authenticated"+req.url)
                //req.flash('login', 'checkAuth failed, need to login')
+               req.session.return_to = req.url
                res.redirect("/login");
            }
  }

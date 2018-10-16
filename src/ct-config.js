@@ -23,14 +23,14 @@ nconf
   .argv()
   // 2. Environment variables
   .env([
-    'CT_DEV_ENDPOINT',
-    'CT_DEV_DBNAME',
-    'CT_DEV_USER',
-    'CT_DEV_PASSWORD',
-    'PROD_ENDPOINT',
-    'PROD_DBNAME',
-    'PROD_USER',
-    'PROD_PASSWORD',
+    'CT_ENDPOINT',
+    'CT_DBNAME',
+    'CT_USER',
+    'CT_PASSWORD',
+    'IRA_ENDPOINT',
+    'IRA_DBNAME',
+    'IRA_USER',
+    'IRA_PASSWORD',
     'NODE_ENV',
     'PORT',
     'DATA_BACKEND',
@@ -54,16 +54,16 @@ nconf
 checkConfig('NODE_ENV');
 //console.log("in ira-config, the endpoint is "+nconf.get('DEV_ENDPOINT'))
 
-  if (nconf.get('NODE_ENV') === 'dev') {
-    checkConfig('CT_DEV_ENDPOINT');
-    checkConfig('CT_DEV_USER');
-    checkConfig('CT_DEV_PASSWORD');
-    checkConfig('CT_DEV_DBNAME');
+  if (nconf.get('NODE_ENV') === 'crewtime_prod') {
+    checkConfig('CT_ENDPOINT');
+    checkConfig('CT_USER');
+    checkConfig('CT_PASSWORD');
+    checkConfig('CT_DBNAME');
 
   }
 
 function checkConfig (setting) {
   if (!nconf.get(setting)) {
-    throw new Error('You must set ${setting} as an environment variable or in config.json!');
+    throw new Error('You must set '+setting+' as an environment variable or in config.json!');
   }
 }

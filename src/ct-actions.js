@@ -25,7 +25,7 @@ actions.use(function(req, res, next) {
 
 
 //default session info
-let sessioninfo = "no session"
+let sessionInfo = "no session"
 let userObj =
 {
   "id":0,
@@ -73,7 +73,7 @@ function convertDate(thisDate) {
 
 
 // the old web-based version of addtime
-actions.get('/updateworker/:id', (req, res) => {
+actions.get('/updateworker/:id', checkAuthentication, (req, res) => {
         if (req.session && req.session.passport) {
            userObj = req.session.passport.user;
         }
@@ -112,6 +112,7 @@ actions.get('/updateworker/:id', (req, res) => {
 // insert the new transaction - from MOBILE
 actions.post('/process-update-worker', urlencodedParser, (req, res,next) => {
 
+
   processUpdateWorker().catch(err => {
         console.log("Process Worker Update problem: "+err);
   })
@@ -146,7 +147,7 @@ actions.post('/process-update-worker', urlencodedParser, (req, res,next) => {
 
 
 // the old web-based version of addtime
-actions.get('/delete_timeentry/:id', (req, res) => {
+actions.get('/delete_timeentry/:id', checkAuthentication, (req, res) => {
         if (req.session && req.session.passport) {
            userObj = req.session.passport.user;
         }
@@ -174,7 +175,7 @@ actions.get('/delete_timeentry/:id', (req, res) => {
 
 
 // insert the new deal and corresponding entity
-actions.post('/process_delete_timeentry', urlencodedParser, (req, res) => {
+actions.post('/process_delete_timeentry', checkAuthentication, urlencodedParser, (req, res) => {
 
   //call the async function
   doDeleteTimeentry().catch(err => {
@@ -199,7 +200,7 @@ actions.post('/process_delete_timeentry', urlencodedParser, (req, res) => {
 
 
 // the old web-based version of addtime
-actions.get('/updateworktime/:wtid', (req, res) => {
+actions.get('/updateworktime/:wtid', checkAuthentication, (req, res) => {
         if (req.session && req.session.passport) {
            userObj = req.session.passport.user;
         }
@@ -294,27 +295,6 @@ actions.post('/process-update-worktime', urlencodedParser, (req, res,next) => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // insert the new transaction - from MOBILE
 actions.post('/process-web-newtime', urlencodedParser, (req, res,next) => {
 
@@ -361,7 +341,7 @@ actions.post('/process-web-newtime', urlencodedParser, (req, res,next) => {
 
 
 // the old web-based version of addtime
-actions.get('/delete_worker/:id', (req, res) => {
+actions.get('/delete_worker/:id', checkAuthentication, (req, res) => {
         if (req.session && req.session.passport) {
            userObj = req.session.passport.user;
         }
@@ -412,54 +392,6 @@ actions.post('/process_delete_worker', urlencodedParser, (req, res) => {
 
 
 
-actions.get('/buildings',  (req, res) => {
-          if (req.session && req.session.passport) {
-             userObj = req.session.passport.user;
-
-           }
-
- //call the async function
- buildings_units().catch(err => {
-       console.log("Show timeentriesForId problem: "+err);
- })
-
-
-async function buildings_units() {
-                  let allBuildings = await ctSQL.getAllProperties()
-
-                  let allBuildingsUnits = await Promise.all(
-                       allBuildings.map( async (building) => {
-                              let units = await ctSQL.getUnitsByPropertyId(building.id);
-                              //let xBuilding = Object.assign({},building);
-                              building.units = units
-                              building.name = building.name.slice(0,15)
-                              //console.log("Got building: "+JSON.stringify(xBuilding,null,4));
-                              return building
-
-                        })
-                   )
-
-
-                //  console.log("Here are ALL the buildings same bld: "+JSON.stringify(allBuildingsUnits,null,4));
-
-
-                  res.render('ct-list-buildings', {
-                          userObj: userObj,
-                          sessioninfo: JSON.stringify(req.session),
-                          postendpoint: '/process_work_status',
-                          message: req.flash('login') + "Showing "+allBuildingsUnits.length+" buildings.",
-                          buildings: allBuildingsUnits
-                  });//render
-
-
-
-
-
-   } //async function
-
-}); //  buildings route
-
-
 
 
 // insert the new deal and corresponding entity
@@ -492,7 +424,7 @@ actions.post('/process_work_status', urlencodedParser, (req, res) => {
 
 
 // the old web-based version of addtime
-actions.get('/delete_unit/:id', (req, res) => {
+actions.get('/delete_unit/:id', checkAuthentication, (req, res) => {
         if (req.session && req.session.passport) {
            userObj = req.session.passport.user;
         }
@@ -542,7 +474,7 @@ actions.post('/process_delete_unit', urlencodedParser, (req, res) => {
 
 
 // the old web-based version of addtime
-actions.get('/delete_prop/:id', (req, res) => {
+actions.get('/delete_prop/:id', checkAuthentication, (req, res) => {
         if (req.session && req.session.passport) {
            userObj = req.session.passport.user;
         }
@@ -602,12 +534,7 @@ actions.post('/process_delete_prop', urlencodedParser, (req, res) => {
 
 
 
-
-
-
-// insert the new deal and corresponding entity
-actions.get('/add-worker', (req, res) => {
-  //actions.get('/add-deal', (req, res) => {
+actions.get('/add-worker', checkAuthentication, (req, res) => {
           if (req.session && req.session.passport) {
              userObj = req.session.passport.user;
           }
@@ -649,7 +576,7 @@ actions.post('/process_add_worker', urlencodedParser, (req, res) => {
 
 
 // insert the new deal and corresponding entity
-actions.get('/add-property', (req, res) => {
+actions.get('/add-property', checkAuthentication,  (req, res) => {
   //actions.get('/add-deal', (req, res) => {
           if (req.session && req.session.passport) {
              userObj = req.session.passport.user;
@@ -690,7 +617,12 @@ actions.post('/process_add_property', urlencodedParser, (req, res) => {
 
 
 // insert the new deal and corresponding entity
-actions.get('/add-unit', (req, res) => {
+actions.get('/add-unit', checkAuthentication, (req, res) => {
+  if (req.session && req.session.passport) {
+     userObj = req.session.passport.user;
+  }
+
+
 
   //call the async function
   addUnit().catch(err => {
@@ -750,7 +682,7 @@ actions.post('/process_add_unit', urlencodedParser, (req, res) => {
 
 
 // the old web-based version of addtime
-actions.get('/addtime/:link', (req, res) => {
+actions.get('/addtime/:link', checkAuthentication, (req, res) => {
         if (req.session && req.session.passport) {
            userObj = req.session.passport.user;
         }
@@ -876,3 +808,21 @@ actions.post('/process-2-newtime', urlencodedParser, (req, res,next) => {
 
 
 }); //route
+
+
+
+          function checkAuthentication(req,res,next){
+
+                    if(req.isAuthenticated()){
+                           console.log("YES, authenticated"+req.url)
+                           //req.flash('login', 'checkAuth success')
+                           return next();
+                           //res.redirect(req.url);
+
+                    } else {
+                        console.log("NO, not authenticated"+req.url)
+                        //req.flash('login', 'checkAuth failed, need to login')
+                        req.session.return_to = req.url
+                        res.redirect("/login");
+                    }
+          }
