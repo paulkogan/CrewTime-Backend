@@ -52,6 +52,122 @@ function getTodaysDate() {
 
 
 
+
+router.get('/bldgtotalsbydate/:sd/:ed', checkAuthentication, (req, res) => {
+    if (req.session && req.session.passport) {
+                 userObj = req.session.passport.user;
+    }
+
+    //call the async function
+    showBldgTotalsByDate().catch(err => {
+          console.log("Show BldgTotalsByDate problem: "+err);
+    })
+
+
+    async function showBldgTotalsByDate() {
+                console.log("\nHere is what is coming in params  "+JSON.stringify(req.params,null,4));
+                //var timeEntries = await ctSQL.getTimeEntriesByWorkerId(req.params.id);
+                 //ct.ctLogger.log('info', '/timeentries/id : '+worker.name+"  U:"+userObj.email);
+                // console.log("\nIn timeentriesbyDate, the dates are  "+req.params.sd+" and "+req.params.ed+"\n");
+                var startDate = req.params.sd;
+                var endDate = req.params.ed;
+                var timeEntries = await ctSQL.getTimeEntriesByDates(startDate,endDate);
+                console.log("\nGot timeEntries for id  and date here is 1st  "+JSON.stringify(timeEntries[0],null,5));
+
+
+                //let totals = {}
+                // for (let i=0; i<timeEntries.length;i++) {
+                //      let te = timeEntries[i]
+                //
+                //       if (!totals[te.property_id]) {
+                //             totals[te.property_id] = {
+                //                   id: te.property_id,
+                //                   name: te.property_name,
+                //                   hours: te.work_hours
+                //             }
+                //
+                //       } else {
+                //           totals[te.property_id].hours += te.work_hours
+                //
+                //       }
+                //
+                // }
+
+                let totals = []
+                for (let i=0; i<timeEntries.length;i++) {
+                     let te = timeEntries[i]
+                     let existingTotal = totals.findIndex( tot => tot.id === te.property_id)
+
+                     if (existingTotal<0) {
+                            totals.push ({
+                                  id: te.property_id,
+                                  name: te.property_name,
+                                  hours: te.work_hours
+                            })
+
+                      } else {
+                          totals[existingTotal].hours += te.work_hours
+
+                      }
+
+                }
+
+                //use a compare function in sort
+                let totalPropertiesHoursSorted = totals.sort( (a,b) => {
+                          return b.hours - a.hours
+
+                })
+
+
+                totalPropertiesHoursSorted.forEach(function(obj, index) { obj.count = index+1; });
+
+
+                console.log("here are the sorted totals: "+JSON.stringify(totalPropertiesHoursSorted,null,4))
+
+                res.render('ct-list-totalhours-by-bldg', {
+                        userObj: userObj,
+                        sessionObj:req.session,
+                        sessionInfo: JSON.stringify(req.session),
+                        message: req.flash('login') + "  Showing "+totalPropertiesHoursSorted.length+" properties.",
+                        properties: totalPropertiesHoursSorted,
+                        today: getTodaysDate(),
+                        startDate: startDate,
+                        endDate: endDate,
+                        postendpoint: '/process_bldtotal_bydate_filter'
+                });//render
+
+    } //async function
+}); //route - timeEntries
+
+
+//need this because we hit a submit button to send search
+router.post('/process_bldtotal_bydate_filter', urlencodedParser, (req, res) => {
+
+          if (req.session && req.session.passport) {
+             userObj = req.session.passport.user;
+           }
+           let formData = req.body
+           console.log("\nProcess timeentry by Date filter - Raw from the Form: "+JSON.stringify(formData,null,4)+"\n");
+
+
+
+           let startDate = formData.start_date
+           let endDate = formData.end_date
+
+
+           res.redirect('/bldgtotalsbydate/'+startDate+'/'+endDate);
+
+})
+
+
+
+
+
+
+
+
+
+
 router.get('/buildings',  checkAuthentication, (req, res) => {
           if (req.session && req.session.passport) {
              userObj = req.session.passport.user;
@@ -596,19 +712,18 @@ router.get('/showlogs',  checkAuthentication, (req, res) => {
 
 
       let reportMenuOptions = []
-      reportMenuOptions[0] = {name:"Workers & Links to Forms", link:"/workers"}
-      reportMenuOptions[1] = {name:"Time Entries with Invoice and XLS Download", link:"/timeentriesbydate/0/2018-09-01/"+getTodaysDate()}
-      reportMenuOptions[2] = {name:"Properties with Units", link:"/buildings"}
 
-      //reportMenuOptions[1] = {name:"Time Entries with XLS Download", link:"timeentriesbydate/0/2018-09-01/"+getTodaysDate()}
+      reportMenuOptions[0] = {name:"Time Entries with Invoice and XLS Download", link:"/timeentriesbydate/0/2018-09-01/"+getTodaysDate()}
+      reportMenuOptions[1] = {name:"Report: Most Active Properties", link:"/bldgtotalsbydate/2018-09-01/"+getTodaysDate()}
 
 
 
       let adminMenuOptions = []
-
-      adminMenuOptions[0] = {name:"Add Worker", link:"/add-worker"}
-      adminMenuOptions[1] = {name:"Add Property", link:"/add-property"}
-      adminMenuOptions[2] = {name:"Add Unit", link:"/add-unit"}
+      adminMenuOptions[0] = {name:"Workers & Links to Forms", link:"/workers"}
+      adminMenuOptions[1]  = {name:"Properties with Units", link:"/buildings"}
+      adminMenuOptions[2] = {name:"Add Worker", link:"/add-worker"}
+      adminMenuOptions[3] = {name:"Add Property", link:"/add-property"}
+      adminMenuOptions[4] = {name:"Add Unit", link:"/add-unit"}
 
 
 

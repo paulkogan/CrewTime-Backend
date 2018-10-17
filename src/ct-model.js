@@ -72,6 +72,7 @@ module.exports = {
   getAllTimeEntries,
   getTimeEntriesByWorkerId,
   getTimeEntriesByWorkerIdAndDates,
+  getTimeEntriesByDates,
   getTimeEntryById,
   insertTimeEntry,
   insertWorker,
@@ -93,6 +94,44 @@ module.exports = {
 
 
 //======  CREW TIME FUNCTIONS ==========================================
+
+
+function getTimeEntriesByDates(date1, date2) {
+
+
+          var queryString =  'SELECT te.id as id, workers.first as worker_first, workers.last as worker_last,'
+            + 'u.name as unit_name, p.name as property_name, p.id as property_id,'
+            + 'DATE_FORMAT(te.work_date, "%b %d %Y") as work_date, te.work_hours as work_hours'
+            + ' FROM time_entry as te'
+            +' JOIN units as u ON te.unit_id = u.id'
+            +' JOIN workers as workers ON te.worker_id = workers.id'
+            +' JOIN properties as p ON te.property_id = p.id'
+            + " WHERE te.work_date between '"+date1+"' and '"+date2+"'"
+            +' ORDER BY te.id DESC';
+
+
+
+
+            console.log("In Model, TE by Dates, the query string is "+queryString)
+
+
+            return new Promise(function(succeed, fail) {
+                  connection.query(queryString,
+                    function(err, results) {
+                            if (err) {
+                                  console.log("in model, no timeentries for TE by dates got "+err)
+                                  fail(err)
+                            } else  {
+                                  succeed(results)
+                            }
+                    }); //connection
+            }); //promise
+
+} // function
+
+
+
+
 
 function updateWorker(newWorker) {
     console.log("\n\nHere at update: unit:"+ JSON.stringify(newWorker))
