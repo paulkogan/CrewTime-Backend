@@ -71,6 +71,7 @@ module.exports = {
   getAllWorkers,
   getAllTimeEntries,
   getTimeEntriesByWorkerId,
+  getMobileTimeEntriesByWorkerId,
   getTimeEntriesByWorkerIdAndDates,
   getTimeEntriesByDates,
   getTimeEntryById,
@@ -94,6 +95,42 @@ module.exports = {
 
 
 //======  CREW TIME FUNCTIONS ==========================================
+
+
+
+function getMobileTimeEntriesByWorkerId(workerId) {
+
+
+        var queryString = 'SELECT te.id as id, CONCAT(workers.first, " ", workers.last) as worker_name,'
+            + ' u.name as unit_name, p.name as property_name,'
+            + ' DATE_FORMAT(te.work_date, "%b %d %Y") as work_date, te.work_hours as work_hours'
+            + ' FROM time_entry as te'
+            +' JOIN units as u ON te.unit_id = u.id'
+            +' JOIN workers as workers ON te.worker_id = workers.id'
+            +' JOIN properties as p ON te.property_id = p.id'
+            + " WHERE workers.id ='"+workerId+"'"
+            +' ORDER BY te.work_date DESC';
+
+
+
+            return new Promise(function(succeed, fail) {
+                  connection.query(queryString,
+                    function(err, results) {
+                            if (err) {
+                                  console.log("in model, no timeentries for worker: "+workerId+" got "+err)
+                                  fail(err)
+                            } else  {
+                                  succeed(results)
+                            }
+                    }); //connection
+            }); //promise
+
+} // function
+
+
+
+
+
 
 
 function getTimeEntriesByDates(date1, date2) {

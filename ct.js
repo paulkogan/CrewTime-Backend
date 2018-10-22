@@ -29,7 +29,7 @@ const secret = "cat"
 const winston = require('winston')
 const nodePort = 8081;
 
-const ctVersion = "5.19 +Hours Reporting"
+const ctVersion = "5.20 +Time-Entries API"
 
 
 let ctLogger = winston.createLogger({

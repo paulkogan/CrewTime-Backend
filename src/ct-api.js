@@ -59,6 +59,25 @@ module.exports = api;
 // =============== APIs ===============
 
 
+api.get('/api/gettimeentriesforworker/:id',  (req, res) => {
+
+    //call the async function
+    api_getteforworker().catch(err => {
+          console.log("Get TEs for worker problem: "+err);
+          res.send({err});
+    })
+
+    async function api_getteforworker() {
+          let timeEntries=  await ctSQL.getMobileTimeEntriesByWorkerId(req.params.id);
+           console.log("Get TimeEntries for Worker "+JSON.stringify(timeEntries, null, 4));
+          if (!timeEntries) timeEntries = {
+            id: 0,
+            property: "Sorry, no time entries found",
+            unit: "Please check with the office"
+          }
+          res.send(JSON.stringify(timeEntries, null, 4));
+      } //async function getdealfinancials
+}); //route - cc-details
 
 
 
