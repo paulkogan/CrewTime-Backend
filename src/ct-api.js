@@ -69,7 +69,7 @@ api.get('/api/gettimeentriesforworker/:id',  (req, res) => {
 
     async function api_getteforworker() {
           let timeEntries=  await ctSQL.getMobileTimeEntriesByWorkerId(req.params.id);
-           console.log("Get TimeEntries for Worker "+JSON.stringify(timeEntries, null, 4));
+           //console.log("Get TimeEntries for Worker "+JSON.stringify(timeEntries, null, 4));
           if (!timeEntries) timeEntries = {
             id: 0,
             property: "Sorry, no time entries found",
@@ -146,13 +146,13 @@ api.get('/api/gettimeentriesforworker/:id',  (req, res) => {
 
        //call the async function
        api_getworkerbylink().catch(err => {
-             console.log("Get worker by Link problem: "+err);
+             console.log("CTM APIGet worker by Link problem: "+err);
              res.send({err});
        })
 
        async function api_getworkerbylink() {
              let workerDetails =  await ctSQL.getWorkerByLink(req.params.link);
-              console.log("Get worker by Link details "+workerDetails);
+              //console.log("Get worker by Link details "+workerDetails);
              if (!workerDetails) workerDetails = {
                id: 0,
                first: "Sorry, could not find profile.",
@@ -168,7 +168,7 @@ api.get('/api/gettimeentriesforworker/:id',  (req, res) => {
    api.get('/api/getunitsbypropid/:propid',  (req, res) => {
        //call the async function
        api_getunitsbypropid().catch(err => {
-             console.log("Get units by propid problem: "+err);
+             console.log("CTM API - Get units by propid problem: "+err);
              res.send({err});
        })
 

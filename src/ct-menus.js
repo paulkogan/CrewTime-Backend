@@ -342,7 +342,7 @@ router.get('/workerinvoice/:id/:sd/:ed', checkAuthentication, (req, res) => {
           var timeEntriesRaw = await ctSQL.getTimeEntriesByWorkerIdAndDates(req.params.id,startDate,endDate);
 
           let invoice_total = 0
-          let timeEntries = timeEntriesRaw.map((te,index) => {
+          let timeEntries = timeEntriesRaw.reverse().map((te,index) => {
                       te.color = index%2;
                       te.rate = te.is_overtime ? te.ot_rate : te.reg_rate
                       te.line_total = te.work_hours * te.rate

@@ -71,6 +71,54 @@ function convertDate(thisDate) {
 
 
 
+// insert the new transaction - from MOBILE
+actions.post('/process-web-newtime', urlencodedParser, (req, res,next) => {
+
+  processMobNewtime().catch(err => {
+        console.log("Process 2 Newtime problem: "+err);
+  })
+
+  async function processMobNewtime() {
+
+
+    let newtime_form = req.body
+    console.log("\nNewtime - MOB - Raw from the Form: "+JSON.stringify(newtime_form)+"\n");
+
+    let newTimeEntry = {
+            worker_id : newtime_form.worker_id,
+            property_id : newtime_form.property_id,
+            unit_id : newtime_form.unit_id,
+            work_date : newtime_form.work_date,
+            work_hours : newtime_form.work_hours,
+            notes:  newtime_form.notes,
+            date_stamp: newtime_form.date_stamp,
+            time_stamp: newtime_form.time_stamp,
+            is_overtime: (newtime_form.is_overtime) ? 1 : 0
+    }
+
+
+    console.log("\nAbout to insert new Time Entry from MOBILE with "+JSON.stringify(newTimeEntry, null, 4)+"\n");
+    try {
+              let insertTEResults = await ctSQL.insertTimeEntry(newTimeEntry);
+              ct.ctLogger.log('info', '/add-new-time-entry : '+insertTEResults.insertId+" U:"+userObj.email);
+              res.status(200).send(insertTEResults);
+
+    }  catch (err){
+              res.status(404).send("Database Error"+err);
+    }
+
+
+  } //async function
+
+
+}); //route
+
+
+
+
+
+
+
 
 // the old web-based version of addtime
 actions.get('/updateworker/:id', checkAuthentication, (req, res) => {
@@ -290,49 +338,6 @@ actions.post('/process-update-worktime', urlencodedParser, (req, res,next) => {
     } //async function
 
   }); //route
-
-
-
-
-
-// insert the new transaction - from MOBILE
-actions.post('/process-web-newtime', urlencodedParser, (req, res,next) => {
-
-  processMobNewtime().catch(err => {
-        console.log("Process 2 Newtime problem: "+err);
-  })
-
-  async function processMobNewtime() {
-
-
-    let newtime_form = req.body
-    console.log("\nNewtime - MOB - Raw from the Form: "+JSON.stringify(newtime_form)+"\n");
-
-    let newTimeEntry = {
-            worker_id : newtime_form.worker_id,
-            property_id : newtime_form.property_id,
-            unit_id : newtime_form.unit_id,
-            work_date : newtime_form.work_date,
-            work_hours : newtime_form.work_hours,
-            notes:  newtime_form.notes,
-            date_stamp: newtime_form.date_stamp,
-            time_stamp: newtime_form.time_stamp,
-            is_overtime: (newtime_form.is_overtime) ? 1 : 0
-    }
-
-
-    console.log("\nAbout to insert new Time Entry from MOBILE with "+JSON.stringify(newTimeEntry, null, 4)+"\n");
-
-    let insertTEResults = await ctSQL.insertTimeEntry(newTimeEntry);
-    ct.ctLogger.log('info', '/add-new-time-entry : '+insertTEResults.insertId+" U:"+userObj.email);
-    console.log("\nAdded Time Entry - MOBILE "+insertTEResults.insertId);
-    //res.send(200,"Time Entry Added");
-    res.status(200).send("Time Enrry Added");
-
-  } //async function
-
-
-}); //route
 
 
 
