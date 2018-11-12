@@ -20,7 +20,7 @@ const j2csvParser = require('json2csv').parse;
 
 //default session info
 let sessionInfo = "no session"
-let userObj =
+let blankUser, userObj =
 {
   "id":0,
   "firstname":"Log In",
@@ -708,8 +708,10 @@ router.get('/showlogs',  checkAuthentication, (req, res) => {
 
     if (req.session && req.session.passport) {
        userObj = req.session.passport.user;
-     }
+     } else {
 
+       userObj = blankUser
+     }
 
       let reportMenuOptions = []
 
