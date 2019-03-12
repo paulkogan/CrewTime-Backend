@@ -709,13 +709,12 @@ router.get('/showlogs',  checkAuthentication, (req, res) => {
     if (req.session && req.session.passport) {
        userObj = req.session.passport.user;
      } else {
-
        userObj = blankUser
      }
 
       let reportMenuOptions = []
 
-      reportMenuOptions[0] = {name:"Time Entries with Invoice and XLS Download", link:"/timeentriesbydate/0/2018-09-01/"+getTodaysDate()}
+      reportMenuOptions[0] = {name:"Time Entries with Invoice and XLS Download", link:"/timeentriesbydate/0/2019-01-01/"+getTodaysDate()}
       reportMenuOptions[1] = {name:"Report: Most Active Properties", link:"/bldgtotalsbydate/2018-09-01/"+getTodaysDate()}
 
 
