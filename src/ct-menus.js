@@ -48,6 +48,19 @@ function getTodaysDate() {
 }
 
 
+function getPastDateWithOffset(offset) {
+
+      var pastDay = new Date();
+      pastDay.setDate(pastDay.getDate() - offset);
+      var dd = pastDay.getDate();
+      var mm = pastDay.getMonth()+1; //January is 0!
+      var yyyy = pastDay.getFullYear();
+      if (dd<10){  dd='0'+dd }
+      if(mm<10){   mm='0'+mm }
+      let pastdayString = yyyy+'-'+mm+'-'+dd;
+      return pastdayString
+}
+
 //============ CT ROUTES ======================
 
 
@@ -74,24 +87,6 @@ router.get('/bldgtotalsbydate/:sd/:ed', checkAuthentication, (req, res) => {
                 var timeEntries = await ctSQL.getTimeEntriesByDates(startDate,endDate);
                 console.log("\nGot timeEntries for id  and date here is 1st  "+JSON.stringify(timeEntries[0],null,5));
 
-
-                //let totals = {}
-                // for (let i=0; i<timeEntries.length;i++) {
-                //      let te = timeEntries[i]
-                //
-                //       if (!totals[te.property_id]) {
-                //             totals[te.property_id] = {
-                //                   id: te.property_id,
-                //                   name: te.property_name,
-                //                   hours: te.work_hours
-                //             }
-                //
-                //       } else {
-                //           totals[te.property_id].hours += te.work_hours
-                //
-                //       }
-                //
-                // }
 
                 let totals = []
                 for (let i=0; i<timeEntries.length;i++) {
@@ -131,6 +126,7 @@ router.get('/bldgtotalsbydate/:sd/:ed', checkAuthentication, (req, res) => {
                         message: req.flash('login') + "  Showing "+totalPropertiesHoursSorted.length+" properties.",
                         properties: totalPropertiesHoursSorted,
                         today: getTodaysDate(),
+                        fromDate: getPastDateWithOffset(15), 
                         startDate: startDate,
                         endDate: endDate,
                         postendpoint: '/process_bldtotal_bydate_filter'
@@ -714,8 +710,8 @@ router.get('/showlogs',  checkAuthentication, (req, res) => {
 
       let reportMenuOptions = []
 
-      reportMenuOptions[0] = {name:"Time Entries with Invoice and XLS Download", link:"/timeentriesbydate/0/2019-01-01/"+getTodaysDate()}
-      reportMenuOptions[1] = {name:"Report: Most Active Properties", link:"/bldgtotalsbydate/2018-09-01/"+getTodaysDate()}
+      reportMenuOptions[0] = {name:"Time Entries with Invoice and XLS Download", link:"/timeentriesbydate/0/"+getPastDateWithOffset(15)+"/"+getTodaysDate()} 
+      reportMenuOptions[1] = {name:"Report: Most Active Properties", link:"/bldgtotalsbydate/"+getPastDateWithOffset(15)+"/"+getTodaysDate()} 
 
 
 
