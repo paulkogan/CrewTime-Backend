@@ -34,6 +34,8 @@
             Work Date: {{worktime.work_date}}
             <br>
             Building: {{property.name}}
+            <br>
+            GL Account:  {{gl_account.code}} : {{gl_account.description}}
             <br><br>
             Please update:
   </td>
@@ -57,14 +59,31 @@
 
 
 
+<tr>
+	<td align ="right"> GL Account:</td>
+  <td></td>
+  <td>
 
+              <select name="gl_code">
+                <option value='{{worktime.gl_code}}' selected >{{worktime.gl_code}} : {{gl_account.description}}</option>
+              {{#each gl_accounts}}
+              <option  value='{{code}}' >{{code}} : {{description}}</option>
+              {{/each}}
+              </select>
+  </td>
+</tr>
 
+<tr>
+          <td></td>
+          <td></td>
+          <td>
+            &nbsp;
+          </td>
+<tr>
 
 <tr>
 	<td align ="right"> Work Date:</td>
-  <td>
-
-  </td>
+  <td></td>
 
 
   <td>
@@ -80,17 +99,12 @@
           <td>
             &nbsp;
           </td>
-
 <tr>
 
 
 <tr>
 	<td align ="right"> Unit:</td>
-  <td>
-
-  </td>
-
-
+  <td></td>
   <td>
 
               <select name="selcted_unit">

@@ -273,7 +273,8 @@ actions.get('/updateworktime/:wtid', checkAuthentication, (req, res) => {
                 let unit =  await ctSQL.getUnitById(workTime.unit_id);
                 let hoursBy30 = lodash.range(.5, 9, .5);
                 //console.log("\ngot Hours"+JSON.stringify(hoursBy30,null,4));
-
+                let allGLAccounts = await ctSQL.getAllGLAccounts() 
+                let gl_account = workTime.gl_code ? await ctSQL.getGLAccountByGLCode (workTime.gl_code) : null
                 workTime.work_date = convertDate(workTime.work_date)
 
 
@@ -283,8 +284,10 @@ actions.get('/updateworktime/:wtid', checkAuthentication, (req, res) => {
                             postendpoint: '/process-update-worktime',
                             worktime: workTime,
                             hoursBy30,
-                            units,
+                            units,                     
                             unit,
+                            gl_accounts: allGLAccounts,
+                            gl_account,
                             property,
                             worker,
                             today: getTodaysDate()
@@ -322,7 +325,8 @@ actions.post('/process-update-worktime', urlencodedParser, (req, res,next) => {
               notes:  update_te_form.notes,
               is_overtime: update_te_form.is_overtime,
               edit_log: update_te_form.edit_log,
-              work_date: update_te_form.work_date
+              work_date: update_te_form.work_date,
+              gl_code: update_te_form.gl_code
       }
 
 
@@ -423,12 +427,58 @@ actions.post('/process_work_status', urlencodedParser, (req, res) => {
 }); //process add-deal route
 
 
+actions.get('/delete_gl_account/:id', checkAuthentication, (req, res) => {
+      if (req.session && req.session.passport) {
+         userObj = req.session.passport.user;
+      }
+
+
+deleteGLAccount().catch(err => {
+             console.log("Delete problem: "+err);
+             req.flash('login', "Problems delete gl.account")
+             res.redirect('/home')
+       })
+
+
+async function deleteGLAccount() {
+    let gl_account = await ctSQL.getGLAccountById (req.params.id)
+    console.log("\ngot GL Account"+JSON.stringify(gl_account,null,4));
+    res.render('ct-confirm-delete-gl-account', {
+              userObj: userObj,
+              postendpoint: '/process_delete_gl_account',
+              gl_account
+      });//render
+} //async function
+}); //route add mytime
+
+
+
+// insert the new deal and corresponding entity
+actions.post('/process_delete_gl_account', urlencodedParser, (req, res) => {
+
+//call the async function
+doDeleteGLAccount().catch(err => {
+      console.log("Process Del GL Account problem: "+err);
+})
+
+async function doDeleteGLAccount() {
+          let formData = req.body
+          console.log("\nDelete GL Account - Raw from the Form: "+JSON.stringify(formData)+"\n");
+          let gl_account =  await ctSQL.getGLAccountById (formData.gl_account_id);
+
+          var delResults = await ctSQL.deleteGLAccount(gl_account.id);
+          console.log( "Delted gl_account #: "+gl_account.description);
+          req.flash('login', "Deleted gl_account #: "+gl_account.description);
+          res.redirect('/home');
+
+ } //async function
+}); //process add-deal route
 
 
 
 
 
-// the old web-based version of addtime
+
 actions.get('/delete_unit/:id', checkAuthentication, (req, res) => {
         if (req.session && req.session.passport) {
            userObj = req.session.passport.user;
@@ -533,9 +583,42 @@ actions.post('/process_delete_prop', urlencodedParser, (req, res) => {
 }); //process add-deal route
 
 
+actions.get('/add-gl-account', checkAuthentication, (req, res) => {
+      if (req.session && req.session.passport) {
+         userObj = req.session.passport.user;
+      }
 
+      res.render('add-gl-account', {
+              userObj: userObj,
+              postendpoint: '/process_add_gl_account'
 
+      });//render
 
+}); //route
+
+// insert the gl account
+actions.post('/process_add_gl_account', urlencodedParser, (req, res) => {
+
+      //call the async function
+      addGLAccount().catch(err => {
+            console.log("Process Add GL Account problem: "+err);
+      })
+    
+      async function addGLAccount() {
+                let formData = req.body
+                console.log("\nAdd GL Account - Raw from the Form: "+JSON.stringify(formData)+"\n");
+                let newGLAccount = {
+                  code: parseInt(formData.code),
+                  description: formData.description,
+                }
+    
+                var addGLAccountResults = await ctSQL.insertGLAccount(newGLAccount);
+                console.log( "Added GL Account #: "+addGLAccountResults.insertId);
+                req.flash('login', "Added GL Account #: "+addGLAccountResults.insertId);
+                res.redirect('/home');
+       } //async function
+    }); //process add-deal route
+    
 
 
 

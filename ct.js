@@ -29,7 +29,7 @@ const secret = "cat"
 const winston = require('winston')
 const nodePort = 8081;
 
-const ctVersion = "6.0 GL tags "
+const ctVersion = "6.1 GL Codes "
 
 
 let ctLogger = winston.createLogger({

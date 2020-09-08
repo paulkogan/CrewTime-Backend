@@ -155,8 +155,33 @@ router.post('/process_bldtotal_bydate_filter', urlencodedParser, (req, res) => {
 
 })
 
+router.get('/gl_accounts',  checkAuthentication, (req, res) => {
+      if (req.session && req.session.passport) {
+         userObj = req.session.passport.user;
+
+       }
+
+//call the async function
+gl_accounts().catch(err => {
+   console.log("Show gl_accounts problem: "+err);
+})
 
 
+async function gl_accounts() {
+              let allGLAccounts = await ctSQL.getAllGLAccounts()
+
+  
+              res.render('ct-list-gl-accounts', {
+                      userObj: userObj,
+                      sessionObj:req.session,
+                      sessionInfo: JSON.stringify(req.session),
+                      postendpoint: '',
+                      message: req.flash('login') + "Showing "+allGLAccounts.length+" accounts.",
+                      gl_accounts: allGLAccounts
+              });//render
+
+} //async function
+}); //  buildings route
 
 
 
@@ -172,7 +197,7 @@ router.get('/buildings',  checkAuthentication, (req, res) => {
 
  //call the async function
  buildings_units().catch(err => {
-       console.log("Show timeentriesForId problem: "+err);
+       console.log("Show buildings problem: "+err);
  })
 
 
@@ -182,7 +207,6 @@ async function buildings_units() {
                   let allBuildingsUnits = await Promise.all(
                        allBuildings.map( async (building) => {
                               let units = await ctSQL.getUnitsByPropertyId(building.id);
-                              //let xBuilding = Object.assign({},building);
                               building.units = units
                               building.name = building.name.slice(0,15)
                               //console.log("Got building: "+JSON.stringify(xBuilding,null,4));
@@ -191,10 +215,7 @@ async function buildings_units() {
                         })
                    )
 
-
-                //  console.log("Here are ALL the buildings same bld: "+JSON.stringify(allBuildingsUnits,null,4));
-
-
+      
                   res.render('ct-list-buildings', {
                           userObj: userObj,
                           sessionObj:req.session,
@@ -204,12 +225,7 @@ async function buildings_units() {
                           buildings: allBuildingsUnits
                   });//render
 
-
-
-
-
    } //async function
-
 }); //  buildings route
 
 
@@ -718,10 +734,11 @@ router.get('/showlogs',  checkAuthentication, (req, res) => {
       let adminMenuOptions = []
       adminMenuOptions[0] = {name:"Workers & Links to Forms", link:"/workers"}
       adminMenuOptions[1]  = {name:"Properties with Units", link:"/buildings"}
-      adminMenuOptions[2] = {name:"Add Worker", link:"/add-worker"}
-      adminMenuOptions[3] = {name:"Add Property", link:"/add-property"}
-      adminMenuOptions[4] = {name:"Add Unit", link:"/add-unit"}
-
+      adminMenuOptions[2]  = {name:"GL Accounts", link:"/gl_accounts"}
+      adminMenuOptions[3] = {name:"Add Worker", link:"/add-worker"}
+      adminMenuOptions[4] = {name:"Add Property", link:"/add-property"}
+      adminMenuOptions[5] = {name:"Add Unit", link:"/add-unit"}
+      adminMenuOptions[6] = {name:"Add GL Account", link:"/add-gl-account"}
 
 
       res.render('home', {
