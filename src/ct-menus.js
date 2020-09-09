@@ -34,33 +34,6 @@ let blankUser, userObj =
 module.exports = router;
 
 
-
-function getTodaysDate() {
-
-          var today = new Date();
-          var dd = today.getDate();
-          var mm = today.getMonth()+1; //January is 0!
-          var yyyy = today.getFullYear();
-          if (dd<10){  dd='0'+dd }
-          if(mm<10){   mm='0'+mm }
-          today = yyyy+'-'+mm+'-'+dd;
-          return today
-}
-
-
-function getPastDateWithOffset(offset) {
-
-      var pastDay = new Date();
-      pastDay.setDate(pastDay.getDate() - offset);
-      var dd = pastDay.getDate();
-      var mm = pastDay.getMonth()+1; //January is 0!
-      var yyyy = pastDay.getFullYear();
-      if (dd<10){  dd='0'+dd }
-      if(mm<10){   mm='0'+mm }
-      let pastdayString = yyyy+'-'+mm+'-'+dd;
-      return pastdayString
-}
-
 //============ CT ROUTES ======================
 
 
@@ -125,8 +98,8 @@ router.get('/bldgtotalsbydate/:sd/:ed', checkAuthentication, (req, res) => {
                         sessionInfo: JSON.stringify(req.session),
                         message: req.flash('login') + "  Showing "+totalPropertiesHoursSorted.length+" properties.",
                         properties: totalPropertiesHoursSorted,
-                        today: getTodaysDate(),
-                        fromDate: getPastDateWithOffset(15), 
+                        today: ctSQL.getTodaysDate(),
+                        fromDate: ctSQL.getPastDateWithOffset(15), 
                         startDate: startDate,
                         endDate: endDate,
                         postendpoint: '/process_bldtotal_bydate_filter'
@@ -371,7 +344,7 @@ router.get('/workerinvoice/:id/:sd/:ed', checkAuthentication, (req, res) => {
                   message: req.flash('login') + "  Showing "+timeEntries.length+" time entries.",
                   timeEntries: timeEntries,
                   selectedWorker: worker,
-                  today: getTodaysDate(),
+                  today: ctSQL.getTodaysDate(),
                   startDate: startDate,
                   endDate: endDate,
                   invoice_total
@@ -444,7 +417,7 @@ router.get('/timeentriesbydate/:id/:sd/:ed', checkAuthentication, (req, res) => 
                   timeEntries: timeEntries,
                   filterList: workersForFilter,
                   selectedWorker: worker,
-                  today: getTodaysDate(),
+                  today: ctSQL.getTodaysDate(),
                   startDate: startDate,
                   endDate: endDate,
                   postendpoint: '/process_timeentries_bydate_filter'
@@ -536,7 +509,7 @@ router.get('/timeentries/:id', checkAuthentication, (req, res) => {
                   filterList: workersForFilter,
                   selectedWorker: worker,
                   postendpoint: '/process_timeentries_filter',
-                  today: getTodaysDate()
+                  today: ctSQL.getTodaysDate()
           });//render
 
     } //async function
@@ -580,7 +553,7 @@ router.get('/workers', checkAuthentication,  (req, res) => {
                             sessionInfo: JSON.stringify(req.session),
                                   message: req.flash('login') + "Showing "+workers.length+" workers.",
                                   workers: workers,
-                                  today:getTodaysDate()
+                                  today: ctSQL.getTodaysDate()
                           });//render
 
 
@@ -726,8 +699,8 @@ router.get('/showlogs',  checkAuthentication, (req, res) => {
 
       let reportMenuOptions = []
 
-      reportMenuOptions[0] = {name:"Time Entries with Invoice and XLS Download", link:"/timeentriesbydate/0/"+getPastDateWithOffset(15)+"/"+getTodaysDate()} 
-      reportMenuOptions[1] = {name:"Report: Most Active Properties", link:"/bldgtotalsbydate/"+getPastDateWithOffset(15)+"/"+getTodaysDate()} 
+      reportMenuOptions[0] = {name:"Time Entries with Invoice and XLS Download", link:"/timeentriesbydate/0/"+ctSQL.getPastDateWithOffset(15)+"/"+ctSQL.getTodaysDate()} 
+      reportMenuOptions[1] = {name:"Report: Most Active Properties", link:"/bldgtotalsbydate/"+ctSQL.getPastDateWithOffset(15)+"/"+ctSQL.getTodaysDate()} 
 
 
 

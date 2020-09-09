@@ -93,17 +93,56 @@ module.exports = {
   setWorkStatus,
   findUser,
   updateUser,
-  authUser
+  authUser, 
+  getTodaysDate,
+  convertDate,
+  getPastDateWithOffset
 };
 
 
 
 
 //======  CREW TIME FUNCTIONS ==========================================
+    
+    
+    function getTodaysDate() {
+    
+      var today = new Date();
+      var dd = today.getDate();
+      var mm = today.getMonth()+1; //January is 0!
+      var yyyy = today.getFullYear();
+      if (dd<10){  dd='0'+dd }
+      if(mm<10){   mm='0'+mm }
+      today = yyyy+'-'+mm+'-'+dd;
+      return today
+    }
+    
+    
+    function convertDate(thisDate) {
+      var dd = thisDate.getDate();
+      var mm = thisDate.getMonth()+1; //January is 0!
+      var yyyy = thisDate.getFullYear();
+      if (dd<10){  dd='0'+dd }
+      if(mm<10){   mm='0'+mm }
+      let simpleDate = yyyy+'-'+mm+'-'+dd;
+      return simpleDate
+    }
+    
+    function getPastDateWithOffset(offset) {
+    
+      var pastDay = new Date();
+      pastDay.setDate(pastDay.getDate() - offset);
+      var dd = pastDay.getDate();
+      var mm = pastDay.getMonth()+1; //January is 0!
+      var yyyy = pastDay.getFullYear();
+      if (dd<10){  dd='0'+dd }
+      if(mm<10){   mm='0'+mm }
+      let pastdayString = yyyy+'-'+mm+'-'+dd;
+      return pastdayString
+    }
+    
 
-
-
-function getMobileTimeEntriesByWorkerId(workerId) {
+function getMobileTimeEntriesByWorkerId(workerId, date1, date2) {
 
 
         var queryString = 'SELECT te.id as id, CONCAT(workers.first, " ", workers.last) as worker_name,'
@@ -114,6 +153,7 @@ function getMobileTimeEntriesByWorkerId(workerId) {
             +' JOIN workers as workers ON te.worker_id = workers.id'
             +' JOIN properties as p ON te.property_id = p.id'
             + " WHERE workers.id ='"+workerId+"'"
+            +" AND te.work_date between '"+date1+"' and '"+date2+"'"
             +' ORDER BY te.work_date DESC';
 
 
@@ -131,10 +171,6 @@ function getMobileTimeEntriesByWorkerId(workerId) {
             }); //promise
 
 } // function
-
-
-
-
 
 
 

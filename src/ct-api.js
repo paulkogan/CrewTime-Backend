@@ -34,28 +34,6 @@ let userObj =
 module.exports = api;
 
 
-
-//    *********     List of API Calls ***********
-
-
-
-
-
-
-
-
-//======== IRA api calls
-// getcapcallswithdetails
-// getccdetails
-// getcapitalcalls
-// getdealfinancials
-// getownership
-// getdeals
-// getalltransactions
-// transforentity
-// searchentities
-
-
 // =============== APIs ===============
 
 
@@ -67,8 +45,11 @@ api.get('/api/gettimeentriesforworker/:id',  (req, res) => {
           res.send({err});
     })
 
+
     async function api_getteforworker() {
-          let timeEntries=  await ctSQL.getMobileTimeEntriesByWorkerId(req.params.id);
+          let date1 = ctSQL.getPastDateWithOffset(15)
+          let date2 = ctSQL.getTodaysDate()
+          let timeEntries=  await ctSQL.getMobileTimeEntriesByWorkerId(req.params.id, date1, date2);
            //console.log("Get TimeEntries for Worker "+JSON.stringify(timeEntries, null, 4));
           if (!timeEntries) timeEntries = {
             id: 0,

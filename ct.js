@@ -29,7 +29,7 @@ const secret = "cat"
 const winston = require('winston')
 const nodePort = 8081;
 
-const ctVersion = "6.1 GL Codes "
+const ctVersion = "6.2 Auto GL "
 
 
 let ctLogger = winston.createLogger({
@@ -120,9 +120,11 @@ const server = app.listen(nodePort, function() {
 });
 
 
-module.exports = app;
 exports.ctLogger = ctLogger;
 exports.version = ctVersion;
+exports.gl_default = 6157
+
+module.exports = app
 
 
 
