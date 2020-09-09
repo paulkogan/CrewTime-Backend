@@ -1,0 +1,115 @@
+
+
+<div>
+<table width = "100%" border = 0 >
+
+<tr>
+<td></td>
+  <td>
+  <font family = 'courier' size='5'><b>Crew Time</b> - Delete GL Account</font>
+</td>
+
+<td align = "right">
+      <a href = '/logout'>Logout</a>&emsp;<img width='50' src={{userObj.photo}}>
+</td>
+
+</tr>
+
+<tr>
+      <td></td>
+      <td align = "left">
+        <a href = "/">Home</a>&emsp;
+      </td>
+
+      <td></td>
+</tr>
+
+<tr>
+      <td>
+      {{message}}
+      </td>
+      <td></td>
+      <td></td>
+</tr>
+</table>
+</div>
+
+
+
+<form action = "{{postendpoint}}" method = "POST">
+<div class="w3-panel w3-white w3-leftbar
+     w3-rightbar w3-border-lightgrey w3-margin-right w3-margin-left">
+<br>
+
+
+
+
+<table width = "100%" border = 0 >
+          <colgroup>
+                <col width="40%"/>
+                <col width="40%"/>
+                <col width="20%"/>
+                </colgroup>
+  <tr>
+
+     <td colspan='2'>
+      NOTE: if there are existing Time-Entries with this GL Account, reporting will break. So please delete Time-Entries with this GL Account first!
+    </td>
+      <td></td>
+      <td></td>
+  </tr>
+
+<tr>
+	<td>
+Please confirm you want to delete:
+	</td>
+  <td>
+  	<input type = "hidden" name = "gl_account_id" value={{gl_account.id}}>  <br>
+  </td>
+  <td></td>
+</tr>
+
+<tr>
+  <td align = "right">
+ID:
+ </td>
+  <td>
+	  	 {{gl_account.id}}
+  </td>
+</tr>
+
+<tr>
+  <td align = "right">
+GL Account Code:
+  <td>
+	  	 {{gl_account.code}}
+  </td>
+</tr>
+
+<tr>
+    <td align = "right">GL Account Description:</td>
+     <td>
+          {{gl_account.description}}
+     </td>
+    <td></td>
+
+</tr>
+<tr>
+    <td align = "right">&nbsp;</td>
+     <td>
+     </td>
+    <td></td>
+
+</tr>
+<tr>
+    <td></td>
+     <td>
+         <input type = "submit" value = "Confirm Delete">
+     </td>
+    <td></td>
+
+</tr>
+
+</table>
+</form>
+</div>

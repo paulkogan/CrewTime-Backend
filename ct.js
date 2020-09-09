@@ -29,7 +29,7 @@ const secret = "cat"
 const winston = require('winston')
 const nodePort = 8081;
 
-const ctVersion = "5.6 +DB-5 and new crewtimeapp.com links"
+const ctVersion = "6.1 GL Codes "
 
 
 let ctLogger = winston.createLogger({

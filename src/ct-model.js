@@ -67,9 +67,12 @@ module.exports = {
   getWorkerById,
   getPropertyById,
   getUnitById,
+  getGLAccountById,
+  getGLAccountByGLCode,
   getAllProperties,
   getAllWorkers,
   getAllTimeEntries,
+  getAllGLAccounts,
   getTimeEntriesByWorkerId,
   getMobileTimeEntriesByWorkerId,
   getTimeEntriesByWorkerIdAndDates,
@@ -79,12 +82,14 @@ module.exports = {
   insertWorker,
   insertProperty,
   insertUnit,
+  insertGLAccount,
   updateTimeEntry,
   updateWorker,
   deleteUnit,
   deleteProperty,
   deleteWorker,
   deleteTimeentry,
+  deleteGLAccount,
   setWorkStatus,
   findUser,
   updateUser,
@@ -138,7 +143,7 @@ function getTimeEntriesByDates(date1, date2) {
 
           var queryString =  'SELECT te.id as id, workers.first as worker_first, workers.last as worker_last,'
             + 'u.name as unit_name, p.name as property_name, p.id as property_id,'
-            + 'DATE_FORMAT(te.work_date, "%b %d %Y") as work_date, te.work_hours as work_hours'
+            + 'DATE_FORMAT(te.work_date, "%b %d %Y") as work_date, te.gl_code as gl_code, te.work_hours as work_hours'
             + ' FROM time_entry as te'
             +' JOIN units as u ON te.unit_id = u.id'
             +' JOIN workers as workers ON te.worker_id = workers.id'
@@ -214,7 +219,7 @@ function getTimeEntriesByWorkerIdAndDates(workerId, date1, date2) {
           var queryString =  'SELECT te.id as id, workers.first as worker_first, workers.last as worker_last,'
             + ' CONCAT(workers.first, " ", workers.last) as worker_name, u.name as unit_name, p.name as property_name,'
             + 'DATE_FORMAT(te.work_date, "%b %d %Y") as work_date, te.work_hours as work_hours,'
-            +'te.notes as notes, te.date_stamp as date_stamp, te.time_stamp as time_stamp, te.is_overtime as is_overtime,'
+            +'te.notes as notes, te.date_stamp as date_stamp, te.time_stamp as time_stamp, te.gl_code as gl_code, te.is_overtime as is_overtime,'
             + 'workers.reg_rate as reg_rate, workers.ot_rate as ot_rate'
             + ' FROM time_entry as te'
             +' JOIN units as u ON te.unit_id = u.id'
@@ -229,7 +234,7 @@ function getTimeEntriesByWorkerIdAndDates(workerId, date1, date2) {
           var queryString =  'SELECT te.id as id, workers.first as worker_first, workers.last as worker_last,'
             + ' CONCAT(workers.first, " ", workers.last) as worker_name, u.name as unit_name, p.name as property_name,'
             + 'DATE_FORMAT(te.work_date, "%b %d %Y") as work_date, te.work_hours as work_hours,'
-            +'te.notes as notes, te.date_stamp as date_stamp, te.time_stamp as time_stamp, te.is_overtime as is_overtime,'
+            +'te.notes as notes, te.date_stamp as date_stamp, te.time_stamp as time_stamp, te.gl_code as gl_code, te.is_overtime as is_overtime,'
             + 'workers.reg_rate as reg_rate, workers.ot_rate as ot_rate'
             + ' FROM time_entry as te'
             +' JOIN units as u ON te.unit_id = u.id'
@@ -272,6 +277,7 @@ function updateTimeEntry (newTE) {
     +' work_date = \''+newTE.work_date+'\','
     +' notes = \''+newTE.notes+'\','
     +' is_overtime = \''+newTE.is_overtime+'\','
+    +' gl_code = \''+newTE.gl_code+'\','
     +' edit_log = \''+newTE.edit_log+'\''
     +' WHERE id ='+newTE.id+'';
 
@@ -389,6 +395,23 @@ function deleteProperty(prop_id) {
 } // function
 
 
+
+function deleteGLAccount(gl_account_id) {
+      let queryString = 'DELETE FROM gl_accounts where id='+gl_account_id+";"
+      return new Promise(function(succeed, fail) {
+            connection.query(queryString,
+              function(err, results) {
+                      if (err) {
+                            fail(err)
+                      } else {
+                            succeed(results)
+                      }
+              }); //connection
+      }); //promise
+    } // function
+
+
+
 function getWorkingUnitsByPropertyId (prop_id) {
   let queryString = 'SELECT * from units WHERE property_id ='+prop_id+' AND unit_work_status = 1';
       return new Promise(function(succeed, fail) {
@@ -449,6 +472,46 @@ function getUnitById (unit_id) {
       }); //promise
 } // function
 
+function getGLAccountById (gl_account_id) {
+      let queryString = 'SELECT * from gl_accounts WHERE id ='+gl_account_id;
+      return new Promise(function(succeed, fail) {
+            connection.query(queryString,
+              function(err, results) {
+                      if (err) {
+                            fail(err)
+                      } else {
+                            if (!results[0]) {
+                                    fail("No such gl account, sorry")
+                            }
+
+                            console.log ("Success found GL Account by ID "+results[0].name +"\n")
+                            succeed(results[0])
+                      }
+              }); //connection
+      }); //promise
+} // function
+
+function getGLAccountByGLCode (gl_code) {
+      let queryString = 'SELECT * from gl_accounts WHERE code ='+gl_code;
+      return new Promise(function(succeed, fail) {
+            connection.query(queryString,
+              function(err, results) {
+                      if (err) {
+                            fail(err)
+                      } else {
+                            if (!results[0]) {
+                                    fail("No such gl account, sorry")
+                            }
+
+                            console.log ("Success found GL Account by Code "+results[0].name +"\n")
+                            succeed(results[0])
+                      }
+              }); //connection
+      }); //promise
+} // function
+
+
+
 function getPropertyById (prop_id) {
       let queryString = 'SELECT * from properties WHERE id ='+prop_id;
       return new Promise(function(succeed, fail) {
@@ -504,6 +567,20 @@ function getWorkerById (passedId) {
 } // function
 
 
+function getAllGLAccounts()  {
+      let queryString = 'SELECT * from gl_accounts';
+      return new Promise(function(succeed, fail) {
+            connection.query(queryString,
+              function(err, results) {
+                      if (err) {
+                            fail(err)
+                      } else {
+
+                            succeed(results)
+                      }
+              }); //connection
+      }); //promise
+} // function
 
 
 function getAllProperties()  {
@@ -569,7 +646,7 @@ function getTimeEntriesByWorkerId(workerId) {
         var queryString = 'SELECT te.id as id, workers.first as worker_first, workers.last as worker_last,'
             + ' CONCAT(workers.first, " ", workers.last) as worker_name, u.name as unit_name, p.name as property_name,'
             + 'DATE_FORMAT(te.work_date, "%b %d %Y") as work_date, te.work_hours as work_hours,'
-            +'te.notes as notes, te.date_stamp as date_stamp, te.time_stamp as time_stamp, te.is_overtime as is_overtime'
+            +'te.notes as notes, te.date_stamp as date_stamp, te.time_stamp as time_stamp, te.gl_code as gl_code, te.is_overtime as is_overtime'
             + ' FROM time_entry as te'
             +' JOIN units as u ON te.unit_id = u.id'
             +' JOIN workers as workers ON te.worker_id = workers.id'
@@ -583,7 +660,7 @@ function getTimeEntriesByWorkerId(workerId) {
      var queryString =  'SELECT te.id as id, workers.first as worker_first, workers.last as worker_last,'
        + ' CONCAT(workers.first, " ", workers.last) as worker_name, u.name as unit_name, p.name as property_name,'
        + 'DATE_FORMAT(te.work_date, "%b %d %Y") as work_date, te.work_hours as work_hours,'
-       +'te.notes as notes, te.date_stamp as date_stamp, te.time_stamp as time_stamp, te.is_overtime as is_overtime'
+       +'te.notes as notes, te.date_stamp as date_stamp, te.time_stamp as time_stamp, te.gl_code as gl_code, te.is_overtime as is_overtime'
        + ' FROM time_entry as te'
        +' JOIN units as u ON te.unit_id = u.id'
        +' JOIN workers as workers ON te.worker_id = workers.id'
@@ -614,7 +691,7 @@ function getAllTimeEntries() {
   let queryString =  'SELECT te.id as id, workers.first as worker_first, workers.last as worker_last,'
     + ' CONCAT(workers.first, " ", workers.last) as worker_name, u.name as unit_name, p.name as property_name,'
     + 'DATE_FORMAT(te.work_date, "%b %d %Y") as work_date, te.work_hours as work_hours,'
-    +'te.notes as notes, te.date_stamp as date_stamp, te.time_stamp as time_stamp, te.is_overtime as is_overtime'
+    +'te.notes as notes, te.date_stamp as date_stamp, te.time_stamp as time_stamp, te.gl_code as gl_code, te.is_overtime as is_overtime'
     + ' FROM time_entry as te'
     +' JOIN units as u ON te.unit_id = u.id'
     +' JOIN workers as workers ON te.worker_id = workers.id'
@@ -706,7 +783,22 @@ function insertUnit(newUnit) {
       }); //promise
 } // function
 
-
+function insertGLAccount(newGLAccount) {
+      console.log("In Model, adding new Unit : "+JSON.stringify(newGLAccount))
+      return new Promise(function(succeed, fail) {
+            connection.query(
+            'INSERT INTO gl_accounts SET ?', newGLAccount,
+                function(err, results) {
+                          if (err) {
+                                console.log("Problem inserting Gl Account SQL"+err)
+                                fail(err)
+                          } else {
+                                //console.log("In model, results: "+JSON.stringify(results));
+                                succeed(results)
+                          }
+              }); //connection
+      }); //promise
+} // function
 
 
 
