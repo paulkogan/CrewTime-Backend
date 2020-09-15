@@ -41,27 +41,6 @@ module.exports = actions;
 
 //module.exports = checkAuthentication
 
-function getTodaysDate() {
-
-          var today = new Date();
-          var dd = today.getDate();
-          var mm = today.getMonth()+1; //January is 0!
-          var yyyy = today.getFullYear();
-          if (dd<10){  dd='0'+dd }
-          if(mm<10){   mm='0'+mm }
-          today = yyyy+'-'+mm+'-'+dd;
-          return today
-}
-
-function convertDate(thisDate) {
-          var dd = thisDate.getDate();
-          var mm = thisDate.getMonth()+1; //January is 0!
-          var yyyy = thisDate.getFullYear();
-          if (dd<10){  dd='0'+dd }
-          if(mm<10){   mm='0'+mm }
-          let simpleDate = yyyy+'-'+mm+'-'+dd;
-          return simpleDate
-}
 
 
 
@@ -91,6 +70,7 @@ actions.post('/process-web-newtime', urlencodedParser, (req, res,next) => {
             work_date : newtime_form.work_date,
             work_hours : newtime_form.work_hours,
             notes:  newtime_form.notes,
+            gl_code: ct.gl_default,
             date_stamp: newtime_form.date_stamp,
             time_stamp: newtime_form.time_stamp,
             is_overtime: (newtime_form.is_overtime) ? 1 : 0
@@ -275,7 +255,7 @@ actions.get('/updateworktime/:wtid', checkAuthentication, (req, res) => {
                 //console.log("\ngot Hours"+JSON.stringify(hoursBy30,null,4));
                 let allGLAccounts = await ctSQL.getAllGLAccounts() 
                 let gl_account = workTime.gl_code ? await ctSQL.getGLAccountByGLCode (workTime.gl_code) : null
-                workTime.work_date = convertDate(workTime.work_date)
+                workTime.work_date = ctSQL.convertDate(workTime.work_date)
 
 
                 console.log("\nrendering  worktime"+JSON.stringify(workTime,null,4));
@@ -290,7 +270,7 @@ actions.get('/updateworktime/:wtid', checkAuthentication, (req, res) => {
                             gl_account,
                             property,
                             worker,
-                            today: getTodaysDate()
+                            today: ctSQL.getTodaysDate()
                     });//render
         } else {
                 console.log("No such Worktime "+req.params.wtid);
@@ -814,7 +794,7 @@ actions.post('/process-1-newtime', urlencodedParser, (req, res,next) => {
     let units =  await ctSQL.getUnitsByPropertyId (selected_property_id);
     let worker = await ctSQL.getWorkerByLink(worker_link);
     let property = await ctSQL.getPropertyById(selected_property_id);
-    let today = getTodaysDate()
+    let today = ctSQL.getTodaysDate()
     let hoursBy30 = lodash.range(.5, 9, .5);
     //console.log("\nhoursBy30 looks like "+hoursBy30+"\n");
 
@@ -856,6 +836,7 @@ actions.post('/process-2-newtime', urlencodedParser, (req, res,next) => {
             worker_id : newtime_form.worker_id,
             property_id : newtime_form.selected_property_id,
             unit_id : JSON.parse(newtime_form.selcted_unit)[0],
+            gl_code: ct.gl_default,
             work_date : newtime_form.work_date,
             work_hours : newtime_form.hours_worked,
             notes:  newtime_form.notes
