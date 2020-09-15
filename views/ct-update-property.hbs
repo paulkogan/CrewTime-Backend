@@ -1,0 +1,117 @@
+
+
+<div>
+<table width = "100%" border = 0 >
+
+<tr>
+    <td width = "5%"></td>
+    <td>
+          GP Properties - Crew Time<br>
+      <br>
+      <font family = 'courier' size='5'><b>Update Property Info</b></font>
+    </td>
+
+</tr>
+
+<tr>
+      <td></td>
+      <td align = "left">
+      <a href = "/">Home</a>&emsp;
+      </td>
+
+      <td></td>
+      <td></td>
+      <td></td>
+</tr>
+
+
+
+<tr>
+  <td width = "5%"></td>
+  <td>
+            Id: {{property.id}}<br>
+            Name: <b>{{property.name}}</b> 
+            <br>
+            Work Status: <b>{{property.prop_work_status}}</b>
+            <br><br><br><br>
+            Please update:
+  </td>
+</tr>
+</table>
+
+
+
+</div>
+<form action = "{{postendpoint}}" method = "POST" id="edit-property">
+<div>
+<table width = "100%" border = 0>
+      <colgroup>
+
+      <col width="20%"/>
+      <col width="20%"/>
+      <col width="2%"/>
+      <col width="20%"/>
+      <col width="20%"/>
+      <col width="2%"/>
+
+      </colgroup>
+
+
+      <tr>
+          	<td align="right">
+              <b>Name:&nbsp;</b>
+          	</td>
+            <td align="left">
+          	<input type = "text" size = "30"  name = "name" value="{{property.name}}"><br>
+            </td>
+            <td></td>
+            <td>Must match appFolio.</td>
+            <td></td>
+
+      </tr>
+
+
+      <tr>
+          	<td align="right">
+              <b>Property Work Status:&nbsp;</b>
+          	</td>
+            <td align="left">
+
+
+                <select name="prop_work_status">
+                    <option value=1>  Active </option>
+                    <option value=0 > Inactive </option></option>
+                </select>
+                 </td>
+            </td>
+            <td></td>
+            <td></td>
+            <td></td>
+      </tr>
+
+
+
+
+
+
+      <input type = "hidden" name = "id" value={{property.id}}>
+
+
+      </form>
+
+<tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td>
+            <button type="submit" form="edit-property" >Submit Update</button>
+          </td>
+          <td></td>
+
+
+<tr>
+</table>
+<br>
+
+</div>
+&emsp;&emsp;

@@ -85,6 +85,7 @@ module.exports = {
   insertGLAccount,
   updateTimeEntry,
   updateWorker,
+  updateProperty,
   deleteUnit,
   deleteProperty,
   deleteWorker,
@@ -188,8 +189,6 @@ function getTimeEntriesByDates(date1, date2) {
             +' ORDER BY te.id DESC';
 
 
-
-
             console.log("In Model, TE by Dates, the query string is "+queryString)
 
 
@@ -207,7 +206,30 @@ function getTimeEntriesByDates(date1, date2) {
 
 } // function
 
-
+function updateProperty(newProperty) {
+      console.log("\n\nHere at model - update property"+ JSON.stringify(newProperty))
+  
+      let queryString = 'UPDATE properties SET'
+      +' name = \''+newProperty.name+'\','
+      +' prop_work_status = '+newProperty.prop_work_status
+      +' WHERE id = '+newProperty.id+'';
+  
+    console.log("In Model, updating Property, the query string is "+queryString)
+  
+  
+      return new Promise(function(succeed, fail) {
+            connection.query(queryString,
+              function(err, results) {
+                      if (err) {
+                            fail(err)
+                      } else {
+                            console.log ("In Model, Success - Updated entity with "+JSON.stringify(results)+"\n")
+                            succeed(results.affectedRows)
+                      }
+              }); //connection
+      }); //promise
+  } // function
+  
 
 
 
