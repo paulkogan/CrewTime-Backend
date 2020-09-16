@@ -180,6 +180,7 @@ function getTimeEntriesByDates(date1, date2) {
 
           var queryString =  'SELECT te.id as id, workers.first as worker_first, workers.last as worker_last,'
             + 'u.name as unit_name, p.name as property_name, p.id as property_id,'
+            + 'DATE_FORMAT(te.work_date, "%m/%d/%y") as excel_work_date,'
             + 'DATE_FORMAT(te.work_date, "%b %d %Y") as work_date, te.gl_code as gl_code, te.work_hours as work_hours'
             + ' FROM time_entry as te'
             +' JOIN units as u ON te.unit_id = u.id'
@@ -277,6 +278,7 @@ function getTimeEntriesByWorkerIdAndDates(workerId, date1, date2) {
           var queryString =  'SELECT te.id as id, workers.first as worker_first, workers.last as worker_last,'
             + ' CONCAT(workers.first, " ", workers.last) as worker_name, u.name as unit_name, p.name as property_name,'
             + 'DATE_FORMAT(te.work_date, "%b %d %Y") as work_date, te.work_hours as work_hours,'
+            + 'DATE_FORMAT(te.work_date, "%m/%d/%y") as excel_work_date,'
             +'te.notes as notes, te.date_stamp as date_stamp, te.time_stamp as time_stamp, te.gl_code as gl_code, te.is_overtime as is_overtime,'
             + 'workers.reg_rate as reg_rate, workers.ot_rate as ot_rate'
             + ' FROM time_entry as te'
@@ -292,6 +294,7 @@ function getTimeEntriesByWorkerIdAndDates(workerId, date1, date2) {
           var queryString =  'SELECT te.id as id, workers.first as worker_first, workers.last as worker_last,'
             + ' CONCAT(workers.first, " ", workers.last) as worker_name, u.name as unit_name, p.name as property_name,'
             + 'DATE_FORMAT(te.work_date, "%b %d %Y") as work_date, te.work_hours as work_hours,'
+            + 'DATE_FORMAT(te.work_date, "%m/%d/%y") as excel_work_date,'
             +'te.notes as notes, te.date_stamp as date_stamp, te.time_stamp as time_stamp, te.gl_code as gl_code, te.is_overtime as is_overtime,'
             + 'workers.reg_rate as reg_rate, workers.ot_rate as ot_rate'
             + ' FROM time_entry as te'

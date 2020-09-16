@@ -29,7 +29,7 @@ const secret = "cat"
 const winston = require('winston')
 const nodePort = 8081;
 
-const ctVersion = "6.3 Edit Property"
+const ctVersion = "6.4 appFolio Export"
 
 
 let ctLogger = winston.createLogger({

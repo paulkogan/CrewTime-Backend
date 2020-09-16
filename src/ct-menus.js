@@ -36,7 +36,54 @@ module.exports = router;
 
 //============ CT ROUTES ======================
 
+router.get('/export_appfolio_bills/:id/:sd/:ed', checkAuthentication, (req, res) => {
 
+      exportAppfolioBills().catch(err => {
+            console.log("Export_Appfolio problem: "+err);
+      })
+      let fileName;
+
+      async function exportAppfolioBills() {
+                  var startDate = req.params.sd;
+                  var endDate = req.params.ed;
+                  var timeEntriesRaw = await ctSQL.getTimeEntriesByWorkerIdAndDates(req.params.id,startDate,endDate);
+                  console.log("\nin appfolio export - Got timeEntries for entity * date - here is 1st  "+JSON.stringify(timeEntriesRaw[0],null,5));
+
+                  if (req.params.id >0 ) {
+                        let filerWorker = await ctSQL.getWorkerById(req.params.id)
+                        fileName = "gpp_bills-"+filerWorker.last+"-"+startDate+"--"+endDate+".csv"
+                  } else {
+                        fileName = "gpp_bills-AllWorkers-"+startDate+"--"+endDate+".csv"
+
+                  }
+
+
+            var  appFolioBills = timeEntriesRaw.map(function(te_bill) {
+                        let rate = te_bill.is_overtime ? te_bill.ot_rate : te_bill.reg_rate
+                        let te_total = rate * te_bill.work_hours
+                        //console.log("for "+te_bill.id+" the rate is "+rate+" and orig line total is "+ line_total)
+                        return  {
+                          "Bill Property Code": te_bill.property_name,
+                          "Bill Unit Name": te_bill.unit_name,
+                          "Payee Name": te_bill.worker_name,
+                          "Amount": te_total,
+                          "Bill Account": te_bill.gl_code,
+                          "Description":  te_bill.work_hours+"h",
+                          "Bill Date": te_bill.excel_work_date,
+                          "Due Date": ctSQL.getTodaysDate()
+                        }
+            });
+
+
+                  let appFolioExportCSV = await createCSVforDownload(appFolioBills);
+                  //console.log("In CT-menus, the CSV file is \n"+timeEntriesCSV+"\n")
+                  res.setHeader('Content-disposition', 'attachment; filename='+fileName);
+                  res.set('Content-Type', 'text/csv');
+                  res.status(200).send(appFolioExportCSV);
+
+    }; //async function
+
+}); //route
 
 
 router.get('/bldgtotalsbydate/:sd/:ed', checkAuthentication, (req, res) => {
@@ -259,7 +306,7 @@ router.get('/download_csv2/:id/:sd/:ed', checkAuthentication, (req, res) => {
             });
 
 
-                  let timeEntriesCSV = await createTECSVforDownload(selectTimeEntries);
+                  let timeEntriesCSV = await createCSVforDownload(selectTimeEntries);
                   //console.log("In CT-menus, the CSV file is \n"+timeEntriesCSV+"\n")
                   res.setHeader('Content-disposition', 'attachment; filename='+fileName);
                   res.set('Content-Type', 'text/csv');
@@ -271,7 +318,7 @@ router.get('/download_csv2/:id/:sd/:ed', checkAuthentication, (req, res) => {
 
 
 
-async function createTECSVforDownload(responseArray) {
+async function createCSVforDownload(responseArray) {
 
         let columns = Object.keys(responseArray[0]);
         console.log(" Columns are: " + columns +"\n")
@@ -602,7 +649,7 @@ router.get('/download_csv/:id', checkAuthentication, (req, res) => {
             });
 
 
-                  let timeEntriesCSV = await createTECSVforDownload(selectTimeEntries);
+                  let timeEntriesCSV = await createCSVforDownload(selectTimeEntries);
                   console.log("In CT-menus, the CSV file is \n"+timeEntriesCSV+"\n")
                   res.setHeader('Content-disposition', 'attachment; filename='+fileName);
                   res.set('Content-Type', 'text/csv');
