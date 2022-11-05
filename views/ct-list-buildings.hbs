@@ -3,7 +3,7 @@
 <table width = "100%" border = 0>
 
 <tr><td>
-  <font family = 'courier' size='5'><b>Crew Time</b> - Buildings List</font>
+  <font family = 'courier' size='5'><b>Crew Time</b> - Properties List</font>
 </td><td align = "right">
   <a href = '/updateuser'>{{userObj.firstname}}</a>&emsp;<img width='50' src={{userObj.photo}}>
 </td></tr>
@@ -81,8 +81,15 @@
                  </table>
                    {{/if}}
           </td>
+
+
+          <td align="center">
+                <a href = '/updateproperty/{{id}}/'>Edit Property</a>
+          </td>
+
+
           <td align="left">
-                 <a href = "/delete_prop/{{id}}">Del.Bldg.</a>
+                 <a href = "/delete_prop/{{id}}">Del. Property.</a>
 
            </td>
           <td align="center"></td>
@@ -98,5 +105,4 @@
  {{/if}}
 </form>
 <br><br>
-&emsp; &emsp;  form="change_work_status"
- <br><br>
+

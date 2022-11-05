@@ -48,6 +48,68 @@ module.exports = actions;
 
 //============ CREW-TIME ROUTES ======================
 
+actions.get('/updateproperty/:id', checkAuthentication, (req, res) => {
+      if (req.session && req.session.passport) {
+         userObj = req.session.passport.user;
+      }
+
+
+updateProperty().catch(err => {
+             console.log("Problems updating worker : "+err);
+             req.flash('login', "Problems updating worker ")
+             res.redirect('/workers')
+       })
+
+
+async function updateProperty() {
+    let propertyToEdit = await ctSQL.getPropertyById(req.params.id);
+    console.log("\nin actions, update got Property"+JSON.stringify(propertyToEdit,null,4));
+    if (propertyToEdit) {
+              res.render('ct-update-property', {
+                          userObj: userObj,
+                          postendpoint: '/process-update-property',
+                          property: propertyToEdit 
+                  });//render
+      } else {
+              console.log("No such property "+req.params.id);
+              req.flash('login', "Problems editing property "+req.params.id)
+              res.redirect('/buildings')
+
+      }
+} 
+}); 
+
+
+
+
+actions.post('/process-update-property', urlencodedParser, (req, res,next) => {
+
+
+      processUpdateProperty().catch(err => {
+            console.log("Process property Update problem: "+err);
+      })
+
+      async function processUpdateProperty() {
+
+            let update_property_form = req.body
+            console.log("\nUpdate Property Raw from the Form: "+JSON.stringify(update_property_form,null,4)+"\n");
+            //IF form fields correspond exactly to object fields
+            const propertyUpdate  = {...update_property_form}
+            
+            console.log("\nAbout to send updated Property to Model "+JSON.stringify(propertyUpdate, null, 4)+"\n");
+
+            let updateResults = await ctSQL.updateProperty(propertyUpdate);
+            console.log("\nUpdated Property  "+updateResults);
+            req.flash('login', "Updated Property "+propertyUpdate.id+" ")
+            res.redirect('/buildings');
+
+      } 
+
+}); 
+
+
+
+
 
 
 // insert the new transaction - from MOBILE
@@ -100,7 +162,7 @@ actions.post('/process-web-newtime', urlencodedParser, (req, res,next) => {
 
 
 
-// the old web-based version of addtime
+
 actions.get('/updateworker/:id', checkAuthentication, (req, res) => {
         if (req.session && req.session.passport) {
            userObj = req.session.passport.user;
@@ -152,7 +214,7 @@ actions.post('/process-update-worker', urlencodedParser, (req, res,next) => {
     //IF form fields correspond exactly to object fields
     const workerUpdate  = {...update_worker_form}
 
-    console.log("\nAbout to send updated Time Entry to Model "+JSON.stringify(workerUpdate , null, 4)+"\n");
+    console.log("\nAbout to send updated Worker to Model "+JSON.stringify(workerUpdate , null, 4)+"\n");
 
         let updateResults = await ctSQL.updateWorker(workerUpdate);
         //ct.ctLogger.log('info', '/add-new-time-entry : '+insertTEResults.insertId+" U:"+userObj.email);
