@@ -18,7 +18,7 @@ const ctApp =  require('../ct');
 let ct_options = {
           user: deployConfig.get('CT_USER'),
           password: deployConfig.get('CT_PASSWORD'),
-          host: deployConfig.get('CT_8_ENDPOINT'),
+          host: deployConfig.get('CT_ENDPOINT'),
           database: deployConfig.get('CT_DBNAME'),
           port: 3306,
           multipleStatements: true
