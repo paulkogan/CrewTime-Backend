@@ -26,20 +26,8 @@ let ct_options = {
 
 
 
-
-
-let ira_options = {
-          user: deployConfig.get('IRA_USER'),
-          password: deployConfig.get('IRA_PASSWORD'),
-          host: deployConfig.get('IRA_ENDPOINT'),
-          database: deployConfig.get('IRA_DBNAME'),
-          port: 3306,
-          multipleStatements: true
-};
-
-
 const connection = mysql.createConnection(ct_options);
-const ira_connection = mysql.createConnection(ira_options);
+
 
 connection.connect(function(err) {
       if (err) {
@@ -50,14 +38,7 @@ connection.connect(function(err) {
       }
 });
 
-ira_connection.connect(function(err) {
-      if (err) {
-            console.error('error connecting to IRA SQL: ' + err.stack);
-            return;
-      } else {
-            console.log('connected to IRA as id ' + connection.threadId+"to ");
-      }
-});
+
 
 
 module.exports = {
@@ -663,7 +644,7 @@ function getAllProperties()  {
 
 
 function getAllWorkers()  {
-      let queryString = 'SELECT * from workers';
+      let queryString = 'SELECT * from workers ORDER BY last ASC';
       return new Promise(function(succeed, fail) {
             connection.query(queryString,
               function(err, results) {
@@ -872,7 +853,7 @@ function insertGLAccount(newGLAccount) {
 
 //without Bcrypt for now
 function authUser (email, password, done) {
-  ira_connection.query(
+  connection.query(
     'SELECT * FROM users WHERE email = ?', email,  (err, results) => {
       if (!err && !results.length) {
               done("Not found "+ email+" got "+err, null);
@@ -910,7 +891,7 @@ function updateUser (updateuser) {
     console.log("\n\nHere at update: email:"+ updateuser.email +" PW:"+updateuser.password+" ID:"+updateuser.id)
 
     return new Promise(   function(succeed, fail) {
-          ira_connection.query(
+          connection.query(
           'UPDATE users SET email = ?, photo =?, password=? WHERE id=?',
           [updateuser.email, updateuser.photo, updateuser.password, updateuser.id],
           function(err, results) {
@@ -929,7 +910,7 @@ function updateUser (updateuser) {
 
 
 function findUser (email, cb) {
-  ira_connection.query(
+  connection.query(
     'SELECT * FROM users WHERE email = ?', email,  (err, results) => {
       if (!err && !results.length) {
               cb("Not found "+ email+" got "+err);
