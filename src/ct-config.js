@@ -54,7 +54,7 @@ nconf
 checkConfig('NODE_ENV');
 //console.log("in ira-config, the endpoint is "+nconf.get('DEV_ENDPOINT'))
 
-  if (nconf.get('NODE_ENV') === 'PRODUCTIOIN') {
+  if (nconf.get('NODE_ENV') === 'PRODUCTION') {
     checkConfig('CT_ENDPOINT');
     checkConfig('CT_USER');
     checkConfig('CT_PASSWORD');

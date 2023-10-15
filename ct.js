@@ -29,7 +29,7 @@ const secret = "cat"
 const winston = require('winston')
 const nodePort = 8081;
 
-const ctVersion = "6.5 Node16 2023"
+const ctVersion = "6.6 mySQL 8.0 upgrade"
 
 
 let ctLogger = winston.createLogger({
